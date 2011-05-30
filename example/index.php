@@ -1,5 +1,7 @@
 <?php
 
+$startTime = microtime(true);
+
 require_once '../src/Sharbat.php';
 
 function __autoload($class)
@@ -23,3 +25,5 @@ function __autoload($class)
 $injector = Sharbat::createInjector(new ApplicationModule());
 $application = $injector->getInstance('Application');
 $application->execute();
+
+echo '<pre>', microtime(true) - $startTime, '</pre>';

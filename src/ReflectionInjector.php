@@ -131,10 +131,11 @@ class ReflectionInjector implements Injector
 		return $reflectionClass->newInstance();
 	}
 	
-	protected function methodInject($object, ReflectionMethod $reflectionMethod)
+	protected function methodInject($instance,
+		ReflectionMethod $reflectionMethod)
 	{
 		$dependencies = $this->getDependencies($reflectionMethod);
-		return $reflectionMethod->invokeArgs($object, $dependencies);
+		return $reflectionMethod->invokeArgs($instance, $dependencies);
 	}
 	
 	protected function getDependencies(ReflectionMethod $reflectionMethod)
