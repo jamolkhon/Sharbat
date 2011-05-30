@@ -46,12 +46,12 @@ class ReflectionInjector implements Injector
 				' cannot be instantiated');
 		}
 		
-		return $this->makeInstance($reflectionClass);
+		return $this->getScopedInstance($reflectionClass);
 	}
 	
 	protected function getReflectionClass($class)
 	{
-		if ($this->reflectionCache->hasKey($class)) {
+		if ($this->reflectionCache->has($class)) {
 			return $this->reflectionCache->get($class);
 		}
 		
@@ -64,23 +64,26 @@ class ReflectionInjector implements Injector
 		}
 	}
 	
-	protected function makeInstance(ReflectionClass $reflectionClass)
+	protected function getScopedInstance(ReflectionClass $reflectionClass)
 	{
 		$key = new Key($reflectionClass->getName());
 		$hash = $key->getHash();
 		
-		if (isset($this->singletons[$hash])) {
+		$isSingleton = $this->hasAnnotation($reflectionClass, 'Singleton');
+		$isSessionScoped = $this->hasAnnotation($reflectionClass,
+			'SessionScoped');
+		
+		if ($isSingleton && isset($this->singletons[$hash])) {
 			return $this->singletons[$hash];
-		} elseif ($this->hasAnnotation($reflectionClass, 'SessionScoped') &&
-			$this->sessionNamespace->hasKey($hash)) {
+		} elseif ($isSessionScoped && $this->sessionNamespace->has($hash)) {
 			return $this->sessionNamespace->get($hash);
 		}
 		
 		$instance = $this->createInstance($reflectionClass);
 		
-		if ($this->hasAnnotation($reflectionClass, 'Singleton')) {	
+		if ($isSingleton) {
 			$this->singletons[$hash] = $instance;
-		} elseif ($this->hasAnnotation($reflectionClass, 'SessionScoped')) {	
+		} elseif ($isSessionScoped) {
 			$this->sessionNamespace->set($hash, $instance);
 		}
 		
@@ -121,8 +124,8 @@ class ReflectionInjector implements Injector
 					' because its constructor is not injectable');
 			}
 			
-			$methodArguments = $this->getMethodArguments($constructor);
-			return $reflectionClass->newInstanceArgs($methodArguments);
+			$dependencies = $this->getDependencies($constructor);
+			return $reflectionClass->newInstanceArgs($dependencies);
 		}
 		
 		return $reflectionClass->newInstance();
@@ -130,20 +133,20 @@ class ReflectionInjector implements Injector
 	
 	protected function methodInject($object, ReflectionMethod $reflectionMethod)
 	{
-		$methodArguments = $this->getMethodArguments($reflectionMethod);
-		return $reflectionMethod->invokeArgs($object, $methodArguments);
+		$dependencies = $this->getDependencies($reflectionMethod);
+		return $reflectionMethod->invokeArgs($object, $dependencies);
 	}
 	
-	protected function getMethodArguments(ReflectionMethod $reflectionMethod)
+	protected function getDependencies(ReflectionMethod $reflectionMethod)
 	{
-		$methodArguments = array();
+		$dependencies = array();
 		
 		foreach ($reflectionMethod->getParameters() as $reflectionParameter) {
-			$methodArguments[] =
+			$dependencies[] =
 				$this->getDependency($reflectionParameter);
 		}
 		
-		return $methodArguments;
+		return $dependencies;
 	}
 	
 	protected function getDependency(ReflectionParameter $reflectionParameter)

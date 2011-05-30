@@ -43,7 +43,7 @@ class Binder
 				$hash = $binding->getKey()->getHash();
 				
 				if ($binding->getScope()->isSession() &&
-					$sessionNamespace->hasKey($hash)) {
+					$sessionNamespace->has($hash)) {
 					$binding->setInstance($sessionNamespace->get($hash));
 				} else {
 					$binding->setInjector($injector);

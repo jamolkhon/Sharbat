@@ -9,7 +9,7 @@ class SimpleCache implements Cache
 		$this->storage = $storage;
 	}
 	
-	public function hasKey($key)
+	public function has($key)
 	{
 		return isset($this->storage[$key]);
 	}
