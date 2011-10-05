@@ -1,10 +1,9 @@
 <?php
 
-class ProviderBinding extends LinkedBinding
-{
-	protected function getInstanceInternal()
-	{
-		$provider = $this->injector->getInstance($this->class);
-		return $provider->get();
+class ProviderBinding extends LinkedBinding {
+
+	public function getInstance() {
+		return parent::getInstance()->get();
 	}
+
 }

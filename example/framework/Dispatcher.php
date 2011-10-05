@@ -1,7 +1,8 @@
 <?php
 
-interface Dispatcher
-{
+interface Dispatcher {
+
 	public function dispatch(Request $request);
+
 }
 

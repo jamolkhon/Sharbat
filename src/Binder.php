@@ -1,80 +1,75 @@
 <?php
 
-class BinderException extends Exception {}
+class Binder {
 
-class Binder
-{
-	protected $bindings = array();
+	private $annotationUtils;
+	private $bindingValidator;
+	private $injector;
 	
-	public function addBinding(Binding $binding)
-	{
-		$key = $binding->getKey();
-		$hash = $key->getHash();
+	private $bindings = array();
+
+	public function __construct(AnnotationUtils $annotationUtils,
+			BindingValidator $bindingValidator) {
+		$this->annotationUtils = $annotationUtils;
+		$this->bindingValidator = $bindingValidator;
+	}
+
+	public function setInjector(Injector $injector) {
+		$this->injector = $injector;
+	}
+
+	public function addBinding(Binding $binding) {
+		$source = $binding->getSource();
 		
-		if (isset($this->bindings[$hash])) {
-			throw new BinderException($key->getName() . ' is already bound');
+		if(!$source) {
+			throw new Exception('Invalid binding source: ' . $source);
 		}
-		
-		$this->bindings[$hash] = $binding;
-	}
-	
-	public function bind($target)
-	{
-		$key = new Key($target);
-		
-		if ($key->isConstant()) {
-			throw new BinderException('No such class/interface ' . $target);
+		if (isset($this->bindings[$source])) {
+			throw new Exception($source . ' is already bound');
 		}
+
+		$this->bindings[$source] = $binding;
+	}
+
+	public function bind($class) {
+		$annotationInfo = $this->annotationUtils
+				->getAnnotationInfoForClass($class);
+		return new BindingBuilder($this, $class, $annotationInfo->getScope(
+				Scopes::NO_SCOPE));
+	}
+
+	public function bindConstant($constant) {
+		return new ConstantBindingBuilder($this, $constant, Scopes::NO_SCOPE);
+	}
+
+	public function build() {
+		$this->bindingValidator->validateAll($this->bindings);
 		
-		return new BindingBuilder($this, $key, new Scope('Request'));
-	}
-	
-	public function bindConstant($constant)
-	{
-		$key = Key::fromConstant($constant);
-		return new ConstantBindingBuilder($this, $key, new Scope('Request'));
-	}
-	
-	public function build(Injector $injector,
-		SessionNamespace $sessionNamespace)
-	{
 		foreach ($this->bindings as $binding) {
 			if ($binding instanceof LinkedBinding) {
-				$hash = $binding->getKey()->getHash();
-				
-				if ($binding->getScope()->isSession() &&
-					$sessionNamespace->has($hash)) {
-					$binding->setInstance($sessionNamespace->get($hash));
-				} else {
-					$binding->setInjector($injector);
-				}
+				$binding->setInjector($this->injector);
 			}
 		}
-		
+
 		return $this;
 	}
-	
-	public function lookUp($target)
-	{
-		$key = new Key($target);
-		$hash = $key->getHash();
-		
-		if ($key->isConstant() || !isset($this->bindings[$hash])) {
-			return null;
-		}
-		
-		return $this->bindings[$hash];
+
+	public function isBound($source) {
+		return isset($this->bindings[$source]);
 	}
-	
-	public function lookUpConstant($constant)
-	{
-		$key = Key::fromConstant($constant);
-		$hash = $key->getHash();
-		
-		if (!isset($this->bindings[$hash])) {
-			return null;
+
+	public function getBinding($source) {
+		if ($this->isBound($source)) {
+			return $this->bindings[$source];
 		}
-		
-		return $this->bindings[$hash];
+
+		// Just in time binding
+		$annotationInfo = $this->annotationUtils->getAnnotationInfoForClass(
+				$source);
+		$binding = new LinkedBinding($source, null, $annotationInfo->getScope(
+				Scopes::NO_SCOPE));
+		$binding->setInjector($this->injector);
+		return $binding;
 	}
+
 }

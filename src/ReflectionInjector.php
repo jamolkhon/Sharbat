@@ -1,174 +1,114 @@
 <?php
 
-class ReflectionInjectorException extends Exception {}
+class ReflectionInjector implements Injector {
 
-/**
- * Reflection based injector
- */
-class ReflectionInjector implements Injector
-{
-	protected $binder;
-	protected $reflectionCache;
-	protected $annotationParser;
-	protected $sessionNamespace;
-	protected $singletons = array();
-	
-	public function __construct(Binder $binder, Cache $reflectionCache,
-		AnnotationParser $annotationParser, SessionNamespace $sessionNamespace)
-	{
+	private $binder;
+	private $reflectionDao;
+	private $annotationUtils;
+
+	public function __construct(Binder $binder, ReflectionDao $reflectionDao,
+			AnnotationUtils $annotationUtils) {
 		$this->binder = $binder;
-		$this->reflectionCache = $reflectionCache;
-		$this->annotationParser = $annotationParser;
-		$this->sessionNamespace = $sessionNamespace;
+		$this->reflectionDao = $reflectionDao;
+		$this->annotationUtils = $annotationUtils;
 	}
-	
-	public function getInstance($target)
-	{
-		$binding = $this->binder->lookUp($target);
-		
-		if ($binding) {
+
+	public function getInstance($dependency) {
+		$binding = $this->binder->getBinding($dependency);
+
+		if ($binding->getScope() === Scopes::NO_SCOPE) {
 			return $binding->getInstance();
 		}
-		
-		return $this->getInstanceOfClass($target);
+
+		$scope = $this->getInstance($binding->getScope());
+		return $scope->getInstance($binding);
 	}
 	
-	public function getInstanceOfClass($class)
-	{
-		$reflectionClass = $this->getReflectionClass($class);
-		
-		if (!$reflectionClass) {
-			throw new ReflectionInjectorException('No such class ' . $class);
-		}
-		
-		if (!$reflectionClass->isInstantiable()) {
-			throw new ReflectionInjectorException($class .
-				' cannot be instantiated');
-		}
-		
-		return $this->getScopedInstance($reflectionClass);
-	}
-	
-	protected function getReflectionClass($class)
-	{
-		if ($this->reflectionCache->has($class)) {
-			return $this->reflectionCache->get($class);
-		}
-		
-		try {
-			$reflectionClass = new ReflectionClass($class);
-			$this->reflectionCache->set($class, $reflectionClass);
-			return $reflectionClass;
-		} catch (ReflectionException $exception) {
-			return null;
-		}
-	}
-	
-	protected function getScopedInstance(ReflectionClass $reflectionClass)
-	{
-		$key = new Key($reflectionClass->getName());
-		$hash = $key->getHash();
-		
-		$isSingleton = $this->hasAnnotation($reflectionClass, 'Singleton');
-		$isSessionScoped = $this->hasAnnotation($reflectionClass,
-			'SessionScoped');
-		
-		if ($isSingleton && isset($this->singletons[$hash])) {
-			return $this->singletons[$hash];
-		} elseif ($isSessionScoped && $this->sessionNamespace->has($hash)) {
-			return $this->sessionNamespace->get($hash);
-		}
-		
-		$instance = $this->createInstance($reflectionClass);
-		
-		if ($isSingleton) {
-			$this->singletons[$hash] = $instance;
-		} elseif ($isSessionScoped) {
-			$this->sessionNamespace->set($hash, $instance);
-		}
-		
+	public function createInstance($class) {
+		$instance = $this->instantiate($class);
+		$this->requestInjection($instance);
 		return $instance;
 	}
-	
-	protected function hasAnnotation($reflection, $annotation)
-	{
-		return $this->annotationParser->hasAnnotation(
-			$reflection->getDocComment(), $annotation);
+
+	public function requestInjection($instance) {
+		$this->requestFieldsInjection($instance);
+		$this->requestMethodsInjection($instance);
 	}
 	
-	protected function createInstance(ReflectionClass $reflectionClass)
-	{
-		$instance = $this->constructorInject($reflectionClass);
-		$publicMethods =
-			$reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
-		
-		foreach ($publicMethods as $reflectionMethod) {
-			if ($this->hasAnnotation($reflectionMethod, 'Inject') &&
-				!$reflectionMethod->isConstructor()) {
-				$this->methodInject($instance, $reflectionMethod);
-			}
-		}
-		
-		return $instance;
-	}
-	
-	protected function constructorInject(ReflectionClass $reflectionClass)
-	{
-		$constructor = $reflectionClass->getConstructor();
+	private function instantiate($class) {
+		$reflection = $this->reflectionDao->get($class);
+		$constructor = $reflection->getConstructor();
 		
 		if ($constructor) {
-			if ($constructor->getNumberOfRequiredParameters() &&
-				!$this->hasAnnotation($constructor, 'Inject')) {
-				throw new ReflectionInjectorException('Cannot instantiate ' .
-					$reflectionClass->getName() .
-					' because its constructor is not injectable');
-			}
-			
-			$dependencies = $this->getDependencies($constructor);
-			return $reflectionClass->newInstanceArgs($dependencies);
+			return $reflection->newInstanceArgs($this->getDependencies(
+					$constructor));
 		}
-		
-		return $reflectionClass->newInstance();
+
+		return $reflection->newInstance();
 	}
 	
-	protected function methodInject($instance,
-		ReflectionMethod $reflectionMethod)
-	{
-		$dependencies = $this->getDependencies($reflectionMethod);
-		return $reflectionMethod->invokeArgs($instance, $dependencies);
+	public function requestFieldsInjection($instance) {
+		$class = $this->reflectionDao->get($instance);
+		$fields = $class->getProperties(ReflectionProperty::IS_PUBLIC);
+
+		foreach ($fields as $field) {
+			$annotationInfo = $this->annotationUtils->getAnnotationInfo(
+					$field->getDocComment());
+
+			if ($annotationInfo->isInjectable()) {
+				$field->setValue($instance, $this->getInstance(
+						$annotationInfo->getInjectClass()));
+			}
+		}
 	}
-	
-	protected function getDependencies(ReflectionMethod $reflectionMethod)
-	{
+
+	public function requestMethodsInjection($instance) {
+		$class = $this->reflectionDao->get($instance);
+		$methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
+
+		foreach ($methods as $method) {
+			$annotationInfo = $this->annotationUtils->getAnnotationInfo(
+					$method->getDocComment());
+
+			if (!$method->isConstructor() && $annotationInfo->isInjectable()) {
+				$method->invokeArgs($instance, $this->getDependencies($method));
+			}
+		}
+	}
+
+	public function injectIntoField($instance, $fieldName) {
+		$class = $this->reflectionDao->get($instance);
+		$field = $class->getProperty($fieldName);
+		$annotationInfo = $this->annotationUtils->getAnnotationInfo(
+				$field->getDocComment());
+		$field->setValue($instance, $this->getInstance(
+				$annotationInfo->getInjectClass()));
+	}
+
+	public function injectIntoMethod($instance, $methodName) {
+		$reflection = $this->reflectionDao->get($instance);
+		$method = $reflection->getMethod($methodName);
+		return $method->invokeArgs($instance, $this->getDependencies($method));
+	}
+
+	private function getDependencies(ReflectionMethod $method) {
 		$dependencies = array();
 		
-		foreach ($reflectionMethod->getParameters() as $reflectionParameter) {
-			$dependencies[] =
-				$this->getDependency($reflectionParameter);
+		foreach ($method->getParameters() as $parameter) {
+			$dependencies[] = $this->getDependency($parameter);
 		}
 		
 		return $dependencies;
 	}
 	
-	protected function getDependency(ReflectionParameter $reflectionParameter)
-	{
-		if ($reflectionClass = $reflectionParameter->getClass()) {
-			return $this->getInstance($reflectionClass->getName());
+	private function getDependency(ReflectionParameter $parameter) {
+		$class = $parameter->getClass();
+		
+		if ($class) {
+			return $this->getInstance($class->getName());
 		}
 		
-		$binding = $this->binder->lookUpConstant(
-			$reflectionParameter->getName());
-		
-		if ($binding !== null) {
-			return $binding->getInstance();
-		}
-		
-		if ($reflectionParameter->isDefaultValueAvailable()) {
-			return $reflectionParameter->getDefaultValue();
-		}
-		
-		throw new ReflectionInjectorException('No binding for param ' .
-			$reflectionParameter->getName() . ' in class ' .
-			$reflectionParameter->getDeclaringClass()->getName());
+		return $this->getInstance($parameter->getName());
 	}
+
 }

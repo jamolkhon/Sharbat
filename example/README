@@ -1,4 +1,0 @@
-A very simple MVC implementation to see how dependency injection works
-
-Point your browser to the index.php file and you should see the following message:
-Hello dependency injection!

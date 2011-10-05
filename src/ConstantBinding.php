@@ -1,5 +1,4 @@
 <?php
 
-class ConstantBinding extends Binding
-{
+class ConstantBinding extends InstanceBinding {
 }

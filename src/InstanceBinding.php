@@ -1,9 +1,9 @@
 <?php
 
-class InstanceBinding extends ScopedBinding
-{
-	protected function getInstanceInternal()
-	{
-		return $this->instance;
+class InstanceBinding extends Binding {
+	
+	public function getInstance() {
+		return $this->getTarget();
 	}
+
 }

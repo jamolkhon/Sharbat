@@ -1,6 +1,7 @@
 <?php
 
-interface Provider
-{
+interface Provider {
+
 	public function get();
+
 }

@@ -1,45 +1,91 @@
 <?php
 
-class SharbatException extends Exception {}
+class Sharbat {
 
-abstract class Sharbat
-{
-	public static function autoload($class)
-	{
-		$file = dirname(__FILE__) . DIRECTORY_SEPARATOR . $class . '.php';
-		
-		if (is_file($file)) {
-			require_once $file;
-			return true;
-		}
-		
-		return false;
+	private $binder;
+	private $reflectionDao;
+	private $annotationUtils;
+	
+	public function __construct(Binder $binder, ReflectionDao $reflectionDao,
+			AnnotationUtils $annotationUtils) {
+		$this->binder = $binder;
+		$this->reflectionDao = $reflectionDao;
+		$this->annotationUtils = $annotationUtils;
+	}
+
+	public static function createInjector() {
+		// Building object graph of Sharbat
+		$reflectionDao = new ReflectionDao();
+		$annotationUtils = new AnnotationUtils(new AnnotationParser(),
+				$reflectionDao);
+		$binder = new Binder($annotationUtils, new BindingValidator());
+		$sharbat = new Sharbat($binder, $reflectionDao, $annotationUtils);
+		return $sharbat->getInjector(func_get_args());
 	}
 	
-	public static function createInjector()
-	{
-		$binder = new Binder();
-		$modules = func_get_args();
+	private function getInjector(array $modules) {
+		$injector = new ReflectionInjector($this->binder, $this->reflectionDao,
+			$this->annotationUtils);
+		$this->binder->setInjector($injector);
 		
-		foreach ($modules as $module) {
-			if (is_object($module) && $module instanceof Module) {
-				$module->configure($binder);
-			} else {
-				throw new SharbatException('Received non-module argument');
-			}
-		}
+		// Built-in scopes
+		$this->binder->bind('SingletonScope')->toInstance(
+				$injector->getInstance('SingletonScope'));
+		$this->binder->bind('Session')->to('SimpleSession')
+				->in(Scopes::SINGLETON);
 		
-		$session = new Session();
-		$sessionNamespace = $session->getNamespace('Sharbat');
-		
-		$injector = new ReflectionInjector($binder, new SimpleCache(),
-			new AnnotationParser(), $sessionNamespace);
-		
-		if (!$binder->lookUp('Injector')) {
-			$binder->bind('Injector')->toInstance($injector);
-		}
-		
-		$binder->build($injector, $sessionNamespace);
+		// Built-in bindings
+		$this->binder->bind('Injector')->toInstance($injector);
+		$this->binder->bind('Binder')->toInstance($this->binder);
+		$this->binder->bind('ReflectionDao')->toInstance($this->reflectionDao);
+		$this->binder->bind('AnnotationUtils')->toInstance($this->annotationUtils);
+
+		$this->configure($modules);
+		$this->bindProvidesProviders($modules, $injector);
+		$this->binder->build();
 		return $injector;
 	}
+	
+	private function configure(array $modules) {
+		foreach ($modules as $module) {
+			if (is_object($module) && $module instanceof AbstractModule) {
+				$module->setBinder($this->binder);
+				$module->configure();
+			} else {
+				throw new Exception('Received a non-module argument.');
+			}
+		}
+	}
+	
+	private function bindProvidesProviders(array $modules, Injector $injector) {
+		foreach ($modules as $module) {
+			$this->bindProvidesProviders($module->getInstalledModules(),
+					$injector);
+			$reflection = $this->reflectionDao->get($module);
+			$methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+			
+			foreach ($methods as $method) {
+				$this->bindMethodAsProvider($module, $method, $injector);
+			}
+		}
+	}
+
+	private function bindMethodAsProvider($module, ReflectionMethod $method,
+			Injector $injector) {
+		$methodAnnotationInfo = $this->annotationUtils->getAnnotationInfo(
+				$method->getDocComment());
+		$providesClass = $methodAnnotationInfo->getProvidesClass();
+
+		if ($providesClass && !$this->binder->isBound($providesClass)) {
+			$providesProvider = new ProvidesProvider($injector, $module,
+					$method->getName());
+			$classAnnotationInfo = $this->annotationUtils
+					->getAnnotationInfoForClass($providesClass);
+			$classScope = $classAnnotationInfo->getScope(Scopes::NO_SCOPE);
+			$this->binder->bind($providesClass)
+					->toProviderInstance($providesProvider)
+					->in($methodAnnotationInfo->getScope($classScope));
+		}
+	}
+
 }

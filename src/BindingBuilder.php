@@ -1,110 +1,45 @@
 <?php
 
-class BindingBuilderException extends Exception {}
+class BindingBuilder {
 
-class BindingBuilder
-{
-	protected $binder;
-	protected $key;
-	protected $scope;
-	
-	public function __construct(Binder $binder, Key $key, Scope $scope)
-	{
+	private $binder;
+	private $class;
+	private $scope;
+
+	public function __construct(Binder $binder, $class, $scope) {
 		$this->binder = $binder;
-		$this->key = $key;
+		$this->class = $class;
 		$this->scope = $scope;
 	}
-	
-	public function ensureValidClass($class)
-	{
-		if (!is_string($class)) {
-			throw new BindingBuilderException('Expecting a string but ' .
-				gettype($class) . ' was provided');
-		}
-		
-		if (!class_exists($class)) {
-			throw new BindingBuilderException('Class ' . $class . ' not found');
-		}
-		
-		return true;
-	}
-	
-	public function ensureValidBinding($class)
-	{
-		$this->ensureValidClass($class);
-		
-		$target = $this->key->getName();
-		
-		if ($this->key->isInterface()) {
-			if (!in_array($target, class_implements($class))) {
-				throw new BindingBuilderException('Class ' . $class .
-					' must implement ' . $target);
-			}
-		} elseif ($this->key->isClass()) {
-			if ($target !== $class &&
-				!in_array($target, class_parents($class))) {
-				throw new BindingBuilderException('Class ' . $class .
-					' must extend or be an instance of ' . $target);
-			}
-		}
-		
-		return true;
-	}
-	
-	public function ensureValidInstance($instance)
-	{
-		if (!is_object($instance)) {
-			throw new BindingBuilderException('Expecting an object but ' .
-				gettype($instance) . ' was provided');
-		}
-		
-		$target = $this->key->getName();
-		
-		if (!($instance instanceof $target)) {
-			throw new BindingBuilderException('Class ' . get_class($instance) .
-				' must extend/implement ' . $target);
-		}
-		
-		return true;
-	}
-	
-	public function ensureValidProvider($provider)
-	{
-		$this->ensureValidClass($provider);
-		
-		if (!in_array('Provider', class_implements($class))) {
-			throw new BindingBuilderException('Class ' . $class .
-				'must implement Provider');
-		}
-		
-		return true;
-	}
-	
-	public function to($class)
-	{
-		$this->ensureValidBinding($class);
-		
-		$binding = new LinkedBinding($this->key, $this->scope, $class);
+
+	public function to($class) {
+		$binding = new LinkedBinding($this->class, $class, $this->scope);
 		$this->binder->addBinding($binding);
-		return $binding->getScope();
+		return new ScopeAssigner($binding);
+	}
+
+	public function toProvider($provider) {
+		$binding = new ProviderBinding($this->class, $provider, $this->scope);
+		$this->binder->addBinding($binding);
+		return new ScopeAssigner($binding);
 	}
 	
-	public function toProvider($provider)
-	{
-		$this->ensureValidProvider($provider);
-		
-		$binding = new ProviderBinding($this->key, $this->scope, $provider);
+	public function toProviderInstance($provider) {
+		$binding = new ProviderInstanceBinding($this->class, $provider,
+				$this->scope);
 		$this->binder->addBinding($binding);
-		return $binding->getScope();
+		return new ScopeAssigner($binding);
 	}
-	
-	public function toInstance($instance)
-	{
-		$this->ensureValidInstance($instance);
-		
-		$binding = new InstanceBinding($this->key, $this->scope);
-		$binding->setInstance($instance);
+
+	public function toInstance($instance) {
+		$binding = new InstanceBinding($this->class, $instance, $this->scope);
 		$this->binder->addBinding($binding);
-		return null;
+		return new ScopeAssigner($binding);
 	}
+
+	public function in($scope) {
+		$binding = new LinkedBinding($this->class, null, $scope);
+		$this->binder->addBinding($binding);
+	}
+
 }

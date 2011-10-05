@@ -1,35 +1,49 @@
 <?php
 
-class AnnotationParser
-{
-	public function hasAnnotation($docComment, $annotation)
-	{
-		return in_array($annotation, $this->getAnnotations($docComment));
+class AnnotationParser {
+
+	public function hasAnnotation($docComment, $name) {
+		$annotations = $this->getAnnotations($docComment);
+		return isset($annotations[$name]);
+	}
+	
+	public function getAnnotation($docComment, $name) {
+		$annotationsAssoc = getAnnotationsAssoc($docComment);
+		
+		if (isset($annoationsAssoc[$name])) {
+			return $annoationsAssoc[$name];
+		}
+		
+		return null;
+	}
+	
+	public function getAnnotations($docComment) {
+		return array_values(getAnnotationsAssoc($docComment));
 	}
 
-	public function getAnnotations($docComment)
-	{
+	public function getAnnotationsAssoc($docComment) {
 		$annotations = array();
 		$tagLines = $this->getTagLines($docComment);
 
 		foreach ($tagLines as $tagLine) {
-			$tagInfo = preg_split('/\s+/', $tagLine);
+			preg_match_all('|^@([a-zA-Z]+[a-zA-Z0-9_]*)(?:\(([a-zA-Z]+[a-zA-Z0-9_]*)\))?$|',
+					$tagLine, $tagInfo, PREG_SET_ORDER);
 
-			switch ($tagInfo[0]) {
-			case '@param':
-			case '@return':
-				break;
-			default:
-				$annotations[] = substr($tagInfo[0], 1);
-				break;
+			if (!empty($tagInfo)) {
+				$arguments = array();
+				
+				if (!empty($tagInfo[0][2])) {
+					$arguments[] = $tagInfo[0][2];
+				}
+				
+				$annotations[$tagInfo[0][1]] = new Annotation($tagInfo[0][1], $arguments);
 			}
 		}
 
 		return $annotations;
 	}
 
-	protected function getTagLines($docComment)
-	{
+	private function getTagLines($docComment) {
 		$tagLines = array();
 		$commentLines = preg_split('/[\r\n]+/', $docComment);
 
@@ -45,4 +59,5 @@ class AnnotationParser
 
 		return $tagLines;
 	}
+
 }
