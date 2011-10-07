@@ -56,11 +56,14 @@ Notes
 
 - Sharbat relies on Type hinting to determine dependencies.
 - Since it is not possible to use Type hinting on fields (properties), the dependency has to be explicitly specified in this manner @Inject(MyInterface).
+- Only public members can be injected.
+- Static injection is supported.
 - Sharbat does *not* require explicit bindings for every class.
 - @Inject annotation is not required on constructors and @Provides methods of modules.
 - Providers and @Provides methods can have dependencies too.
-- Values of Scopes::SINGLETON and Scopes::SESSION class constants are the names of their corresponding classes 'SingletonScope' and 'SessionScope'. When using the @Scope annotation, class name must be used.
-- To override the scope of an interface or class, do not bind it to itself, but use: bind('MyClass')->in('Scopes::SESSION') or bind('MyClass')->in(Scopes::NO_SCOPE).
+- Values of Scopes::SINGLETON and Scopes::SESSION class constants are the names of their corresponding classes 'SingletonScope' and 'SessionScope' respectively. When using the @Scope annotation, class name must be used.
+- Scope in a binding applies to source not target. Consider the following binding: bind('MyInterface')->to('MyClass')->in(Scopes::SINGLETON). All dependencies on MyInterface will receive the same instance, whereas all dependencies on MyClass will receive a new instance.
+- To apply a scope to a class or to override the scope of a class, do not bind it to itself, but use: bind('MyClass')->in(Scopes::SESSION) or bind('MyClass')->in(Scopes::NO_SCOPE).
 - To create a custom scope, just implement Scope and specify it in your binding: bind('MyInterace')->to('MyClass')->in('MyCustomScope').
 - Scopes can have dependencies too.
 - Scopes can themselves be scoped. For example, it is possible create a Conversation scope based on the Session scope: bind('ConversationScope')->in('SessionScope').
