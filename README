@@ -1,1 +1,62 @@
-Sharbat-------Guice-like dependency injection framework for PHP.Supported annotations:- Inject- Provides- ScopeUsage-----$injector = Sharbat::createInjector(new AppModule(), new SecurityModule());$app = $injector->getInstance('Application');Configuration-------------class AppModule extends AbstractModule {	public function configure() {		$this->bind('Application')->to('WebApplication')->in(Scopes::SINGLETON);		$this->bind('Request')->toProvider('RequestProvider');		$this->bind('SomeLib')->toInstance(SomeLib::instance());		$this->bindConstant('SmartyPath')->to('/var/www/example.com/smarty');		// import bindings from another module		$this->install(new DatabaseModule());	}	/**	 * @Provides(Smarty)	 * @Scope(SingletonScope)	 */	public function provideSmarty($SmartyPath) {		require_once 'Smarty/Smarty.class.php';		$smarty = new Smarty();		$smarty->caching = 0;		$smarty->template_dir = $SmartyPath . '/templates/';		$smarty->compile_dir = $SmartyPath . '/templates_c/';		$smarty->config_dir = '';		$smarty->cache_dir = $SmartyPath . '/cache/';		$smarty->left_delimiter = '{';		$smarty->right_delimiter = '}';		return $smarty;	}}
+Sharbat
+-------
+
+Guice-like dependency injection framework for PHP.
+
+Supported annotations:
+- Inject
+- Provides
+- Scope
+
+
+Usage
+-----
+
+$injector = Sharbat::createInjector(new AppModule(), new SecurityModule());
+$app = $injector->getInstance('Application');
+
+
+Configuration
+-------------
+
+class AppModule extends AbstractModule {
+
+	public function configure() {
+		$this->bind('Application')->to('WebApplication')->in(Scopes::SINGLETON);
+		$this->bind('Request')->toProvider('RequestProvider');
+		$this->bind('SomeLib')->toInstance(SomeLib::instance());
+		$this->bindConstant('SmartyPath')->to('/var/www/example.com/smarty');
+
+		// import bindings from another module
+		$this->install(new DatabaseModule());
+	}
+
+	/**
+	 * @Provides(Smarty)
+	 * @Scope(SingletonScope)
+	 */
+	public function provideSmarty($SmartyPath) {
+		require_once 'Smarty/Smarty.class.php';
+		$smarty = new Smarty();
+		$smarty->caching = 0;
+		$smarty->template_dir = $SmartyPath . '/templates/';
+		$smarty->compile_dir = $SmartyPath . '/templates_c/';
+		$smarty->config_dir = '';
+		$smarty->cache_dir = $SmartyPath . '/cache/';
+		$smarty->left_delimiter = '{';
+		$smarty->right_delimiter = '}';
+		return $smarty;
+	}
+
+}
+
+
+Notes
+-----
+
+- Sharbat relies on Type hinting to determine dependencies.
+- Since it is not possible to use Type hinting on fields (properties), the dependency has to be explicitly specified in this manner @Inject(MyInterface).
+- Sharbat does *not* require explicit bindings for every interface/class.
+- @Inject annotation is not required on constructors and @Provides methods of modules.
+- Values of Scopes::SINGLETON and Scopes::SESSION class constants are the names of their corresponding classes 'SingletonScope' and 'SessionScope'. When using the @Scope annotation, class name must be used.
+- To override the scope of an interface or class, do not bind it to itself, but use: bind(MyClass)->in(Scopes::SESSION) or bind(MyClass)->in(Scopes::NO_SCOPE).
