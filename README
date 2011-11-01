@@ -66,4 +66,4 @@ Notes
 - To apply a scope to a class or to override the scope of a class, do not bind it to itself, but use: bind('MyClass')->in(Scopes::SESSION) or bind('MyClass')->in(Scopes::NO_SCOPE).
 - To create a custom scope, just implement Scope and specify it in your binding: bind('MyInterace')->to('MyClass')->in('MyCustomScope').
 - Scopes can have dependencies too.
-- Scopes can themselves be scoped. For example, it is possible create a Conversation scope based on the Session scope: bind('ConversationScope')->in('SessionScope').
+- Scopes can themselves be scoped.
