@@ -1,8 +1,8 @@
-A Guice-like dependency injection framework for PHP5.
+Annotation based dependency injection framework for PHP5 inspired from Google Guice.
 
 # Requirements
-+ PHP 5.3+ (5.3.2 for non-public method injection)
-+ Reflection
+* PHP 5.3+ (5.3.2+ for non-public method injection)
+* Reflection
 
 # Features
 + Constructor/field/method injection
