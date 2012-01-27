@@ -60,7 +60,8 @@ class ReflectionService implements Serializable {
     }
 
     $reflection = $this->getReflectionClass($qualifiedClassName);
-    $annotations = $this->getAnnotations($qualifiedClassName, $reflection);
+    $annotations = $this->getAnnotations($qualifiedClassName,
+      $reflection->getDocComment());
     $parentReflectionClass = $reflection->getParentClass();
     $parentClass = null;
 
@@ -108,13 +109,13 @@ class ReflectionService implements Serializable {
 
   private function createField(ReflectionProperty $property, Clazz $parent) {
     $uniqueName = $parent->getQualifiedName() . ':' . $property->getName();
-    $annotations = $this->getAnnotations($uniqueName, $property);
+    $annotations = $this->getAnnotations($uniqueName, $property->getDocComment());
     return new Field($property, $annotations, $parent);
   }
 
   private function createMethod(ReflectionMethod $method, Clazz $parent) {
     $uniqueName = $parent->getQualifiedName() . ':' . $method->getShortName();
-    $annotations = $this->getAnnotations($uniqueName, $method);
+    $annotations = $this->getAnnotations($uniqueName, $method->getDocComment());
     return new Method($method, $annotations, $parent);
   }
 
