@@ -127,7 +127,7 @@ class ReflectionService implements Serializable {
     return $this->annotations[$uniqueName];
   }
 
-  private function parseAnnotations($docString) {
+  public function parseAnnotations($docString) {
     $annotations = $this->annotationParser->parseAnnotations($docString);
     $annotationObjects = array();
 
@@ -139,7 +139,7 @@ class ReflectionService implements Serializable {
     return $annotationObjects;
   }
 
-  private function getAnnotation($qualifiedClassName, array $arguments) {
+  public function getAnnotation($qualifiedClassName, array $arguments) {
     $reflection = $this->getReflectionClass($qualifiedClassName);
 
     if (!$reflection->implementsInterface('\Sharbat\Inject\Annotation')) {
