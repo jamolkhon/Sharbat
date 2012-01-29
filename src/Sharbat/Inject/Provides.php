@@ -12,10 +12,6 @@ class Provides implements Annotation {
     $this->dependency = $dependency;
   }
 
-  public static function getName() {
-    return __CLASS__;
-  }
-
   public function getDependencyName() {
     return $this->dependency;
   }

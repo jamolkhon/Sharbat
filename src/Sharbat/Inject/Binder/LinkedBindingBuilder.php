@@ -27,7 +27,7 @@ class LinkedBindingBuilder implements ScopedBindingBuilder {
     $this->binding = new LinkedBinding($class);
     $this->bindingDao->addBinding($this->binding);
 
-    $scopeAnnotation = $class->getAnnotation(InScope::getName());
+    $scopeAnnotation = $class->getAnnotation('\Sharbat\Inject\InScope');
     /* @var \Sharbat\Inject\InScope $scopeAnnotation */
 
     if ($scopeAnnotation != null) {

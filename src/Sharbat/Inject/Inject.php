@@ -12,10 +12,6 @@ class Inject implements Annotation {
     $this->qualifiedClassName = $qualifiedClassName;
   }
 
-  public static function getName() {
-    return __CLASS__;
-  }
-
   public function getDependencyName() {
     return $this->qualifiedClassName;
   }

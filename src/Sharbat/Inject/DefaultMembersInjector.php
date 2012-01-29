@@ -26,7 +26,7 @@ class DefaultMembersInjector implements MembersInjector {
     $class = $this->reflectionService->getClass(get_class($instance));
 
     foreach ($class->getFields() as $field) {
-      $injectAnnotation = $field->getAnnotation(Inject::getName());
+      $injectAnnotation = $field->getAnnotation('\Sharbat\Inject\Inject');
       /* @var \Sharbat\Inject\Inject $injectAnnotation */
 
       if ($injectAnnotation != null && !$field->isStatic()) {
@@ -40,7 +40,7 @@ class DefaultMembersInjector implements MembersInjector {
     $class = $this->reflectionService->getClass(get_class($instance));
 
     foreach ($class->getMethods() as $method) {
-      $injectAnnotation = $method->getAnnotation(Inject::getName());
+      $injectAnnotation = $method->getAnnotation('\Sharbat\Inject\Inject');
       /* @var \Sharbat\Inject\Inject $injectAnnotation */
 
       if ($injectAnnotation != null && !$method->isStatic()) {

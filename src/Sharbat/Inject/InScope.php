@@ -12,10 +12,6 @@ class InScope implements Annotation {
     $this->qualifiedClassName = $qualifiedClassName;
   }
 
-  public static function getName() {
-    return __CLASS__;
-  }
-
   public function getScopeClassName() {
     return $this->qualifiedClassName;
   }
