@@ -33,8 +33,9 @@ class CircularDependencyManager implements InstanceCreator {
       return $this->mockInstances[$qualifiedClassName];
     }
 
+    $class = $this->reflectionService->getClass($qualifiedClassName);
     return $this->mockInstances[$qualifiedClassName] =
-        $this->reflectionService->createMockInstance($qualifiedClassName);
+        $class->newInstanceWithoutConstructor();
   }
 
   private function getRealInstance($qualifiedClassName) {

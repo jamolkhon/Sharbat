@@ -45,11 +45,6 @@ class ReflectionService implements Serializable {
     return $this->reflections[$qualifiedClassName];
   }
 
-  public function createMockInstance($qualifiedClassName) {
-    return unserialize(sprintf('O:%d:"%s":0:{}', strlen($qualifiedClassName),
-      $qualifiedClassName));
-  }
-
   /**
    * @param string
    * @return \Sharbat\Reflect\Clazz
