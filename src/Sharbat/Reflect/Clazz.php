@@ -268,11 +268,14 @@ class Clazz implements Annotatable {
   }
 
   public function newInstance() {
-    return call_user_func_array(array($this->reflection, 'newInstance'),
-      func_get_args());
+    return $this->newInstanceArgs(func_get_args());
   }
 
   public function newInstanceArgs(array $arguments) {
+    if (empty($arguments)) {
+      return $this->reflection->newInstance();
+    }
+
     return $this->reflection->newInstanceArgs($arguments);
   }
 
