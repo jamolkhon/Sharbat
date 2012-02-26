@@ -12,7 +12,7 @@ interface Binder {
 
   /**
    * @param string $constant
-   * @return \Sharbat\Inject\Binder\ConstantBindingBuilder
+   * @return \Sharbat\Inject\Binder\ConstantBinding
    */
   function bindConstant($constant);
 
