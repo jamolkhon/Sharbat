@@ -1,6 +1,6 @@
 <?php
 
-namespace Sharbat\Inject;
+namespace Sharbat;
 
 use Sharbat\Inject\Annotation;
 

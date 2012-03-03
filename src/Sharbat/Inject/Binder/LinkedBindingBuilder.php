@@ -5,7 +5,7 @@ namespace Sharbat\Inject\Binder;
 use Sharbat\Reflect\ReflectionService;
 use Sharbat\Inject\BindingDao;
 use Sharbat\Reflect\Clazz;
-use Sharbat\Inject\InScope;
+use Sharbat\Scope;
 use Sharbat\Inject\Provider;
 
 class LinkedBindingBuilder implements ScopedBindingBuilder {
@@ -27,8 +27,8 @@ class LinkedBindingBuilder implements ScopedBindingBuilder {
     $this->binding = new LinkedBinding($class);
     $this->bindingDao->addBinding($this->binding);
 
-    $scopeAnnotation = $class->getAnnotation('\Sharbat\Inject\InScope');
-    /* @var \Sharbat\Inject\InScope $scopeAnnotation */
+    $scopeAnnotation = $class->getAnnotation('\Sharbat\Scope');
+    /* @var \Sharbat\Scope $scopeAnnotation */
 
     if ($scopeAnnotation != null) {
       $scopeClass = $this->reflectionService->getClass(

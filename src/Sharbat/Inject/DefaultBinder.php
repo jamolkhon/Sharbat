@@ -59,8 +59,8 @@ class DefaultBinder implements Binder, BindingDao {
     $moduleClass = $this->reflectionService->getClass(get_class($module));
 
     foreach ($moduleClass->getMethods() as $method) {
-      $providesAnnotation = $method->getAnnotation('\Sharbat\Inject\Provides');
-      /* @var \Sharbat\Inject\Provides $providesAnnotation */
+      $providesAnnotation = $method->getAnnotation('\Sharbat\Provides');
+      /* @var \Sharbat\Provides $providesAnnotation */
 
       if ($providesAnnotation != null) {
         $qualifiedClassName = $providesAnnotation->getDependencyName();
@@ -69,8 +69,8 @@ class DefaultBinder implements Binder, BindingDao {
         $scopedBindingBuilder = $this->bind($qualifiedClassName)
             ->toProviderInstance($providesProvider);
 
-        $scopeAnnotation = $method->getAnnotation('\Sharbat\Inject\InScope');
-        /* @var \Sharbat\Inject\InScope $scopeAnnotation */
+        $scopeAnnotation = $method->getAnnotation('\Sharbat\Scope');
+        /* @var \Sharbat\Scope $scopeAnnotation */
 
         if ($scopeAnnotation != null) {
           $scopedBindingBuilder->in($scopeAnnotation->getScopeClassName());

@@ -1,10 +1,10 @@
 <?php
 
-namespace Sharbat\Inject;
+namespace Sharbat;
 
 use Sharbat\Inject\Annotation;
 
-class InScope implements Annotation {
+class Scope implements Annotation {
 
   private $qualifiedClassName;
 
