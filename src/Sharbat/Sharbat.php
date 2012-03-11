@@ -39,9 +39,14 @@ final class Sharbat {
     $injectorClass->invokeConstructorIfExists($injector, array($binder,
       $bindingInstantiator, $reflectionService, $dependenciesProvider));
 
+    $binder->bind('\Sharbat\Inject\DependenciesProvider')->to(
+      '\Sharbat\Inject\DefaultDependenciesProvider')->inSingleton();
+    $binder->bind('\Sharbat\Inject\Binder')->toInstance($binder);
+    $binder->bind('\Sharbat\Inject\Bindings')->toInstance($binder);
     $binder->bind('\Sharbat\Reflect\ReflectionService')->toInstance(
       $reflectionService);
     $binder->bind('\Sharbat\Inject\Injector')->toInstance($injector);
+    $binder->bind('\Sharbat\Inject\MembersInjector')->toInstance($injector);
     $binder->bind('\Sharbat\Inject\Singleton')->toInstance(new Singleton(
       $defaultScope));
 
