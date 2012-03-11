@@ -1,10 +1,17 @@
 <?php
 
-namespace Sharbat\Inject;
+namespace Sharbat;
 
 use Sharbat\Reflect\AnnotationParser;
 use Sharbat\Reflect\ObjectUtils;
 use Sharbat\Reflect\ReflectionService;
+use Sharbat\Inject\DefaultDependenciesProvider;
+use Sharbat\Inject\ProvidesProvider;
+use Sharbat\Inject\DefaultBinder;
+use Sharbat\Inject\DefaultScope;
+use Sharbat\Inject\BindingInstantiator;
+use Sharbat\Inject\Singleton;
+use Sharbat\Inject\AbstractModule;
 use \RuntimeException;
 use Sharbat\Inject\Binder\BindingValidator;
 
@@ -19,7 +26,7 @@ final class Sharbat {
   public static function createInjector() {
     // Building injector (object graph)
     $annotationParser = new AnnotationParser();
-    $objectUtils = new ObjectUtils();;
+    $objectUtils = new ObjectUtils();
     $reflectionService = new ReflectionService($annotationParser, $objectUtils);
     $injectorClass = $reflectionService->getClass('\Sharbat\Inject\DefaultInjector');
     $injector = $injectorClass->newInstanceWithoutConstructor();
