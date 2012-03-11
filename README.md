@@ -29,8 +29,8 @@ Annotation based dependency injection framework for PHP5 inspired from Google Gu
       }
     
       /**
-       * \Sharbat\Inject\@Provides(PDO)
-       * \Sharbat\Inject\@InScope(\Sharbat\Inject\Singleton)
+       * \Sharbat\@Provides(PDO)
+       * \Sharbat\@Singleton
        */
       public function providePdo($dbuser, $dbpass) {
         return new PDO('mysql:dbname=myappdb;host=localhost', $dbuser, $dbpass);
@@ -50,6 +50,6 @@ Annotation based dependency injection framework for PHP5 inspired from Google Gu
     
     }
     
-    $injector = \Sharbat\Inject\Sharbat::createInjector(new MainModule());
+    $injector = \Sharbat\Sharbat::createInjector(new MainModule());
     $myApp = $injector->getInstance('MyApp');
     $myApp->run();
