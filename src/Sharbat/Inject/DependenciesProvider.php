@@ -2,7 +2,9 @@
 
 namespace Sharbat\Inject;
 
+use Sharbat\Reflect\Field;
 use Sharbat\Reflect\Method;
+use Sharbat\Reflect\Parameter;
 
 interface DependenciesProvider {
 
@@ -12,6 +14,12 @@ interface DependenciesProvider {
    * @return array
    */
   function getDependencies($qualifiedClassName, $method);
+
+  /**
+   * @param \Sharbat\Reflect\Field $field
+   * @return mixed
+   */
+  function getDependencyOfField(Field $field);
 
   /**
    * @param string $qualifiedClassName
@@ -24,5 +32,11 @@ interface DependenciesProvider {
    * @return array
    */
   function getDependenciesOfMethod(Method $method);
+
+  /**
+   * @param \Sharbat\Reflect\Parameter $parameter
+   * @return mixed
+   */
+  function getDependencyOfParameter(Parameter $parameter);
 
 }

@@ -144,17 +144,23 @@ class ReflectionService implements Serializable {
     $constructor = $reflection->getConstructor();
     /* @var \ReflectionMethod $constructor */
 
-    if ($constructor != null && $constructor->getNumberOfParameters() > 0) {
-      if (count($arguments) < $constructor->getNumberOfRequiredParameters()) {
+    $numberOfArguments = count($arguments);
+    $numberOfStringKeys = count(array_filter(array_keys($arguments), 'is_string'));
+
+    if ($numberOfStringKeys === 0) {
+      if ($numberOfArguments < $constructor->getNumberOfRequiredParameters()) {
         throw new RuntimeException('Not enough arguments to create annotation ' .
             $qualifiedClassName);
       }
 
       return $reflection->newInstanceArgs($arguments);
+    } else if ($numberOfStringKeys === $numberOfArguments) {
+      return $this->objectUtils->createValueObject($qualifiedClassName,
+        $arguments);
     }
 
-    return $this->objectUtils->createValueObject($qualifiedClassName,
-      $arguments);
+    throw new RuntimeException(
+      'Cannot determine annotation building method: constructor or setter');
   }
 
   public function serialize() {

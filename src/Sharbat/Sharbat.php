@@ -5,6 +5,7 @@ namespace Sharbat;
 use Sharbat\Reflect\AnnotationParser;
 use Sharbat\Reflect\ObjectUtils;
 use Sharbat\Reflect\ReflectionService;
+use Sharbat\Inject\GenericProvider;
 use Sharbat\Inject\DefaultDependenciesProvider;
 use Sharbat\Inject\ProvidesProvider;
 use Sharbat\Inject\DefaultBinder;
@@ -30,8 +31,9 @@ final class Sharbat {
     $reflectionService = new ReflectionService($annotationParser, $objectUtils);
     $injectorClass = $reflectionService->getClass('\Sharbat\Inject\DefaultInjector');
     $injector = $injectorClass->newInstanceWithoutConstructor();
+    $genericProvider = new GenericProvider($injector);
     $dependenciesProvider = new DefaultDependenciesProvider($reflectionService,
-      $injector);
+      $injector, $genericProvider);
     $providesProvider = new ProvidesProvider($dependenciesProvider);
     $binder = new DefaultBinder($reflectionService, $injector, $providesProvider);
     $defaultScope = new DefaultScope($injector);

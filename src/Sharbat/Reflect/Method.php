@@ -45,7 +45,7 @@ class Method implements Annotatable {
    * @param string $qualifiedClassName
    * @return \Sharbat\Inject\Annotation
    */
-  public function getAnnotation($qualifiedClassName) {
+  public function getFirstAnnotation($qualifiedClassName) {
     foreach ($this->annotations as $annotation) {
       if ($annotation instanceof $qualifiedClassName) {
         return $annotation;
@@ -56,9 +56,25 @@ class Method implements Annotatable {
   }
 
   /**
+   * @param string $qualifiedClassName
    * @return \Sharbat\Inject\Annotation[]
    */
-  public function getAnnotations() {
+  public function getAnnotations($qualifiedClassName) {
+    $annotations = array();
+
+    foreach ($this->annotations as $annotation) {
+      if ($annotation instanceof $qualifiedClassName) {
+        $annotations[] = $annotation;
+      }
+    }
+
+    return $annotations;
+  }
+
+  /**
+   * @return \Sharbat\Inject\Annotation[]
+   */
+  public function getAllAnnotations() {
     return $this->annotations;
   }
 

@@ -8,11 +8,17 @@ interface Annotatable {
    * @param string $qualifiedClassName
    * @return \Sharbat\Inject\Annotation
    */
-  function getAnnotation($qualifiedClassName);
+  function getFirstAnnotation($qualifiedClassName);
+
+  /**
+   * @param string $qualifiedClassName
+   * @return \Sharbat\Inject\Annotation[]
+   */
+  function getAnnotations($qualifiedClassName);
 
   /**
    * @return \Sharbat\Inject\Annotation[]
    */
-  function getAnnotations();
+  function getAllAnnotations();
 
 }

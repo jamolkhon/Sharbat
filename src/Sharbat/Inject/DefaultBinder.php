@@ -59,7 +59,7 @@ class DefaultBinder implements Binder, Bindings {
     $moduleClass = $this->reflectionService->getClass(get_class($module));
 
     foreach ($moduleClass->getMethods() as $method) {
-      $providesAnnotation = $method->getAnnotation('\Sharbat\Provides');
+      $providesAnnotation = $method->getFirstAnnotation('\Sharbat\Provides');
       /* @var \Sharbat\Provides $providesAnnotation */
 
       if ($providesAnnotation != null) {
@@ -69,7 +69,7 @@ class DefaultBinder implements Binder, Bindings {
         $scopedBindingBuilder = $this->bind($qualifiedClassName)
             ->toProviderInstance($providesProvider);
 
-        $scopeAnnotation = $method->getAnnotation('\Sharbat\Scope');
+        $scopeAnnotation = $method->getFirstAnnotation('\Sharbat\Scope');
         /* @var \Sharbat\Scope $scopeAnnotation */
 
         if ($scopeAnnotation != null) {

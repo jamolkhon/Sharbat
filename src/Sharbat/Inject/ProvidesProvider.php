@@ -29,7 +29,7 @@ class ProvidesProvider implements Provider {
 
   public function get() {
     if ($this->module == null || $this->method == null) {
-      throw new RuntimeException('Invalid State: Module and/or method is null');
+      throw new RuntimeException('Invalid state: module and/or method is null');
     }
 
     $dependencies = $this->dependenciesProvider->getDependenciesOfMethod(

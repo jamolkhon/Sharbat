@@ -102,9 +102,7 @@ class DefaultInjector implements Injector, MembersInjector {
 
     foreach ($injectableFields as $field) {
       if (!$field->isStatic()) {
-        $injectAnnotation = $field->getAnnotation($injectAnnotationClassName);
-        /* @var \Sharbat\Inject $injectAnnotation */
-        $dependency = $this->getInstance($injectAnnotation->getDependencyName());
+        $dependency = $this->dependenciesProvider->getDependencyOfField($field);
         $injectors[] = new FieldInjector($field, $dependency);
       }
     }

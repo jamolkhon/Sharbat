@@ -55,11 +55,18 @@ class Clazz implements Annotatable {
     return $this->reflection;
   }
 
+  public function nameEquals($qualifiedClassName) {
+    $backslash = '\\';
+    $passedName = ltrim($qualifiedClassName, $backslash);
+    $myName = ltrim($this->getQualifiedName(), $backslash);
+    return strcasecmp($passedName, $myName) === 0;
+  }
+
   /**
    * @param string $qualifiedClassName
    * @return \Sharbat\Inject\Annotation
    */
-  public function getAnnotation($qualifiedClassName) {
+  public function getFirstAnnotation($qualifiedClassName) {
     foreach ($this->annotations as $annotation) {
       if ($annotation instanceof $qualifiedClassName) {
         return $annotation;
@@ -70,9 +77,25 @@ class Clazz implements Annotatable {
   }
 
   /**
+   * @param string $qualifiedClassName
    * @return \Sharbat\Inject\Annotation[]
    */
-  public function getAnnotations() {
+  public function getAnnotations($qualifiedClassName) {
+    $annotations = array();
+
+    foreach ($this->annotations as $annotation) {
+      if ($annotation instanceof $qualifiedClassName) {
+        $annotations[] = $annotation;
+      }
+    }
+
+    return $annotations;
+  }
+
+  /**
+   * @return \Sharbat\Inject\Annotation[]
+   */
+  public function getAllAnnotations() {
     return $this->annotations;
   }
 
@@ -158,7 +181,7 @@ class Clazz implements Annotatable {
     $methodsWithAnnotation = array();
 
     foreach ($this->methods as $method) {
-      if ($method->getAnnotation($qualifiedAnnotationClassName)) {
+      if ($method->getFirstAnnotation($qualifiedAnnotationClassName)) {
         $methodsWithAnnotation[] = $method;
       }
     }
@@ -203,7 +226,7 @@ class Clazz implements Annotatable {
     $fieldsWithAnnotation = array();
 
     foreach ($this->fields as $field) {
-      if ($field->getAnnotation($qualifiedAnnotationClassName)) {
+      if ($field->getFirstAnnotation($qualifiedAnnotationClassName)) {
         $fieldsWithAnnotation[] = $field;
       }
     }
