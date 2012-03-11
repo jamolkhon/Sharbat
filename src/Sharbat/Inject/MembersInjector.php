@@ -4,6 +4,6 @@ namespace Sharbat\Inject;
 
 interface MembersInjector {
 
-  function injectMembers($instance);
+  function injectTo($instance);
 
 }

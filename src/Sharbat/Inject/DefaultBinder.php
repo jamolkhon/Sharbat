@@ -9,7 +9,7 @@ use Sharbat\Inject\Binder\SourceAlreadyBoundException;
 use Sharbat\Inject\Binder\ConstantBinding;
 use Sharbat\Inject\Binder\LinkedBinding;
 
-class DefaultBinder implements Binder, BindingDao {
+class DefaultBinder implements Binder, Bindings {
 
   private $reflectionService;
   private $linkedBindingBuilder;
@@ -88,7 +88,7 @@ class DefaultBinder implements Binder, BindingDao {
   }
 
   public function requestInjection($instance) {
-    $this->membersInjector->injectMembers($instance);
+    $this->membersInjector->injectTo($instance);
   }
 
   public function addBinding(Binding $binding) {

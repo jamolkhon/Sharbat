@@ -22,7 +22,7 @@ class ConstructorInjector {
     }
   }
 
-  public function inject($instance) {
+  public function injectTo($instance) {
     $constructor = $this->class->getConstructor();
 
     if ($constructor != null) {

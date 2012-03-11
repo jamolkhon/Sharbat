@@ -8,7 +8,7 @@ use Sharbat\Reflect\Clazz;
 
 class DefaultInjector implements Injector, MembersInjector {
 
-  private $bindingDao;
+  private $bindings;
   private $bindingInstantiator;
   private $reflectionService;
   private $dependenciesProvider;
@@ -16,23 +16,23 @@ class DefaultInjector implements Injector, MembersInjector {
   private $dependencies = array();
   private $incompleteInstances = array();
 
-  public function __construct(BindingDao $bindingDao,
+  public function __construct(Bindings $bindings,
       BindingInstantiator $bindingInstantiator,
       ReflectionService $reflectionService,
       DependenciesProvider $dependenciesProvider) {
-    $this->bindingDao = $bindingDao;
+    $this->bindings = $bindings;
     $this->bindingInstantiator = $bindingInstantiator;
     $this->reflectionService = $reflectionService;
     $this->dependenciesProvider = $dependenciesProvider;
   }
 
   public function getInstance($qualifiedClassName) {
-    $binding = $this->bindingDao->getOrCreateBinding($qualifiedClassName);
+    $binding = $this->bindings->getOrCreateBinding($qualifiedClassName);
     return $this->bindingInstantiator->getInstance($binding);
   }
 
   public function getConstant($constant) {
-    $constantBinding = $this->bindingDao->getConstantBinding($constant);
+    $constantBinding = $this->bindings->getConstantBinding($constant);
 
     if ($constantBinding == null) {
       throw new RuntimeException('No binding found for constant: ' . $constant);
@@ -57,14 +57,14 @@ class DefaultInjector implements Injector, MembersInjector {
     $instance = $constructorInjector->createNew();
 
     foreach ($memberInjectors as $injector) {
-      $injector->inject($instance);
+      $injector->injectTo($instance);
     }
 
     foreach ($this->incompleteInstances[$qualifiedClassName] as $incompleteInstance) {
-      $constructorInjector->inject($incompleteInstance);
+      $constructorInjector->injectTo($incompleteInstance);
 
       foreach ($memberInjectors as $injector) {
-        $injector->inject($incompleteInstance);
+        $injector->injectTo($incompleteInstance);
       }
     }
 
@@ -73,11 +73,11 @@ class DefaultInjector implements Injector, MembersInjector {
     return $instance;
   }
 
-  public function injectMembers($instance) {
+  public function injectTo($instance) {
     $class = $this->reflectionService->getClass(get_class($instance));
 
     foreach ($this->getMemberInjectors($class) as $injector) {
-      $injector->inject($instance);
+      $injector->injectTo($instance);
     }
   }
 
@@ -86,12 +86,6 @@ class DefaultInjector implements Injector, MembersInjector {
    * @return \Sharbat\Inject\ConstructorInjector
    */
   private function getConstructorInjector(Clazz $class) {
-    $constructor = $class->getConstructor();
-
-    if ($constructor == null) {
-      return new ConstructorInjector($class, array());
-    }
-
     $dependencies = $this->dependenciesProvider->getConstructorDependencies(
       $class->getQualifiedName());
     return new ConstructorInjector($class, $dependencies);

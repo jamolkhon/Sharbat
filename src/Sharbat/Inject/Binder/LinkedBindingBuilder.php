@@ -3,7 +3,7 @@
 namespace Sharbat\Inject\Binder;
 
 use Sharbat\Reflect\ReflectionService;
-use Sharbat\Inject\BindingDao;
+use Sharbat\Inject\Bindings;
 use Sharbat\Reflect\Clazz;
 use Sharbat\Scope;
 use Sharbat\Inject\Provider;
@@ -11,21 +11,21 @@ use Sharbat\Inject\Provider;
 class LinkedBindingBuilder implements ScopedBindingBuilder {
 
   private $reflectionService;
-  private $bindingDao;
+  private $bindings;
 
   /** @var \Sharbat\Inject\Binder\AbstractScopedBinding */
   private $binding;
 
   public function __construct(ReflectionService $reflectionService,
-      BindingDao $bindingDao) {
+      Bindings $bindings) {
     $this->reflectionService = $reflectionService;
-    $this->bindingDao = $bindingDao;
+    $this->bindings = $bindings;
   }
 
   public function bind($qualifiedClassName) {
     $class = $this->reflectionService->getClass($qualifiedClassName);
     $this->binding = new LinkedBinding($class);
-    $this->bindingDao->addBinding($this->binding);
+    $this->bindings->addBinding($this->binding);
 
     $scopeAnnotation = $class->getAnnotation('\Sharbat\Scope');
     /* @var \Sharbat\Scope $scopeAnnotation */
@@ -40,8 +40,8 @@ class LinkedBindingBuilder implements ScopedBindingBuilder {
   }
 
   private function addBinding(Binding $binding) {
-    $this->bindingDao->removeBinding($binding->getKey());
-    $this->bindingDao->addBinding($binding);
+    $this->bindings->removeBinding($binding->getKey());
+    $this->bindings->addBinding($binding);
   }
 
   /**

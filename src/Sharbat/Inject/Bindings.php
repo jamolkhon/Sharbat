@@ -4,7 +4,7 @@ namespace Sharbat\Inject;
 
 use Sharbat\Inject\Binder\Binding;
 
-interface BindingDao {
+interface Bindings {
 
   function addBinding(Binding $binding);
 

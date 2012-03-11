@@ -14,7 +14,7 @@ class FieldInjector implements MemberInjector {
     $this->dependency = $dependency;
   }
 
-  public function inject($instance) {
+  public function injectTo($instance) {
     $this->field->setValue($instance, $this->dependency);
   }
 

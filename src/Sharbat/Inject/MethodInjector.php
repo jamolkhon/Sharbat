@@ -14,7 +14,7 @@ class MethodInjector implements MemberInjector {
     $this->dependencies = $dependencies;
   }
 
-  public function inject($instance) {
+  public function injectTo($instance) {
     $this->method->invokeArgs($instance, $this->dependencies);
   }
 
