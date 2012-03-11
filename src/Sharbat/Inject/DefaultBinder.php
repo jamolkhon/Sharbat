@@ -7,7 +7,6 @@ use Sharbat\Inject\Binder\LinkedBindingBuilder;
 use Sharbat\Inject\Binder\Binding;
 use Sharbat\Inject\Binder\SourceAlreadyBoundException;
 use Sharbat\Inject\Binder\ConstantBinding;
-use Sharbat\Inject\Binder\LinkedBinding;
 
 class DefaultBinder implements Binder, Bindings {
 
@@ -59,7 +58,7 @@ class DefaultBinder implements Binder, Bindings {
     $moduleClass = $this->reflectionService->getClass(get_class($module));
 
     foreach ($moduleClass->getMethods() as $method) {
-      $providesAnnotation = $method->getFirstAnnotation('\Sharbat\Provides');
+      $providesAnnotation = $method->getFirstAnnotation(Annotations::PROVIDES);
       /* @var \Sharbat\Provides $providesAnnotation */
 
       if ($providesAnnotation != null) {
@@ -69,7 +68,7 @@ class DefaultBinder implements Binder, Bindings {
         $scopedBindingBuilder = $this->bind($qualifiedClassName)
             ->toProviderInstance($providesProvider);
 
-        $scopeAnnotation = $method->getFirstAnnotation('\Sharbat\Scope');
+        $scopeAnnotation = $method->getFirstAnnotation(Annotations::SCOPE);
         /* @var \Sharbat\Scope $scopeAnnotation */
 
         if ($scopeAnnotation != null) {

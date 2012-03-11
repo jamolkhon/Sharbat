@@ -39,7 +39,7 @@ class DefaultDependenciesProvider implements DependenciesProvider {
   }
 
   public function getDependencyOfField(Field $field) {
-    $injectAnnotation = $field->getFirstAnnotation('\Sharbat\Inject');
+    $injectAnnotation = $field->getFirstAnnotation(Annotations::INJECT);
     /* @var \Sharbat\Inject $injectAnnotation */
 
     if ($injectAnnotation instanceof InjectProvider) {
@@ -76,7 +76,7 @@ class DefaultDependenciesProvider implements DependenciesProvider {
     }
 
     $providerAnnotations = $parameter->getDeclaringMethod()->getAnnotations(
-      '\Sharbat\Provider');
+      Annotations::PROVIDER);
     /* @var \Sharbat\Provider[] $providerAnnotations */
 
     foreach ($providerAnnotations as $annotation) {

@@ -6,7 +6,6 @@ use \Serializable;
 use \ReflectionClass;
 use \ReflectionProperty;
 use \ReflectionMethod;
-use \ReflectionParameter;
 use \RuntimeException;
 
 class ReflectionService implements Serializable {

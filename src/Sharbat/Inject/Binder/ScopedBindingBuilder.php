@@ -2,8 +2,6 @@
 
 namespace Sharbat\Inject\Binder;
 
-use Sharbat\Reflect\ReflectionService;
-
 interface ScopedBindingBuilder {
 
   function in($qualifiedClassName);

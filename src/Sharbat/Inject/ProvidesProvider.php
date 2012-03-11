@@ -2,7 +2,6 @@
 
 namespace Sharbat\Inject;
 
-use Sharbat\Reflect\ReflectionService;
 use Sharbat\Reflect\Method;
 use \RuntimeException;
 

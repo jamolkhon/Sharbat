@@ -97,8 +97,7 @@ class DefaultInjector implements Injector, MembersInjector {
    */
   private function getMemberInjectors(Clazz $class) {
     $injectors = array();
-    $injectAnnotationClassName = '\Sharbat\Inject';
-    $injectableFields = $class->getFieldsWithAnnotation($injectAnnotationClassName);
+    $injectableFields = $class->getFieldsWithAnnotation(Annotations::INJECT);
 
     foreach ($injectableFields as $field) {
       if (!$field->isStatic()) {
@@ -107,7 +106,7 @@ class DefaultInjector implements Injector, MembersInjector {
       }
     }
 
-    $injectableMethods = $class->getMethodsWithAnnotation($injectAnnotationClassName);
+    $injectableMethods = $class->getMethodsWithAnnotation(Annotations::INJECT);
 
     foreach ($injectableMethods as $method) {
       if (!$method->isStatic()) {
