@@ -25,19 +25,12 @@ final class Sharbat {
     $injector = $injectorClass->newInstanceWithoutConstructor();
     $dependenciesProvider = new DefaultDependenciesProvider($reflectionService,
       $injector);
-    $methodInvoker = new DefaultMethodInvoker($reflectionService,
-      $dependenciesProvider);
-    $membersInjector = new DefaultMembersInjector($reflectionService, $injector,
-      $methodInvoker);
-    $providesProvider = new ProvidesProvider($methodInvoker);
-    $binder = new DefaultBinder($reflectionService, $membersInjector,
-      $providesProvider);
+    $providesProvider = new ProvidesProvider($dependenciesProvider);
+    $binder = new DefaultBinder($reflectionService, $injector, $providesProvider);
     $defaultScope = new DefaultScope($injector);
     $bindingInstantiator = new BindingInstantiator($defaultScope, $injector);
-    $circularDependencyManager = new CircularDependencyManager($reflectionService,
-      $dependenciesProvider);
     $injectorClass->invokeConstructorIfExists($injector, array($binder,
-      $bindingInstantiator, $circularDependencyManager, $membersInjector));
+      $bindingInstantiator, $reflectionService, $dependenciesProvider));
 
     $binder->bind('\Sharbat\Reflect\ReflectionService')->toInstance(
       $reflectionService);

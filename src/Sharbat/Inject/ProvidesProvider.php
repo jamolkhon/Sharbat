@@ -2,12 +2,13 @@
 
 namespace Sharbat\Inject;
 
+use Sharbat\Reflect\ReflectionService;
 use Sharbat\Reflect\Method;
 use \RuntimeException;
 
 class ProvidesProvider implements Provider {
 
-  private $methodInvoker;
+  private $dependenciesProvider;
 
   /** @var \Sharbat\Inject\AbstractModule */
   private $module;
@@ -15,12 +16,12 @@ class ProvidesProvider implements Provider {
   /** @var \Sharbat\Reflect\Method */
   private $method;
 
-  public function __construct(MethodInvoker $methodInvoker) {
-    $this->methodInvoker = $methodInvoker;
+  public function __construct(DependenciesProvider $dependenciesProvider) {
+    $this->dependenciesProvider = $dependenciesProvider;
   }
 
   public function forModuleMethod(AbstractModule $module, Method $method) {
-    $providesProvider = new ProvidesProvider($this->methodInvoker);
+    $providesProvider = new ProvidesProvider($this->dependenciesProvider);
     $providesProvider->module = $module;
     $providesProvider->method = $method;
     return $providesProvider;
@@ -31,8 +32,9 @@ class ProvidesProvider implements Provider {
       throw new RuntimeException('Invalid State: Module and/or method is null');
     }
 
-    return $this->methodInvoker->invokeMethod($this->module,
-      $this->method->getUnqualifiedName());
+    $dependencies = $this->dependenciesProvider->getDependenciesOfMethod(
+      $this->method);
+    return $this->method->invokeArgs($this->module, $dependencies);
   }
 
 }

@@ -150,6 +150,22 @@ class Clazz implements Annotatable {
     return array_values($this->methods);
   }
 
+  /**
+   * @param string $qualifiedAnnotationClassName
+   * @return \Sharbat\Reflect\Method[]
+   */
+  public function getMethodsWithAnnotation($qualifiedAnnotationClassName) {
+    $methodsWithAnnotation = array();
+
+    foreach ($this->methods as $method) {
+      if ($method->getAnnotation($qualifiedAnnotationClassName)) {
+        $methodsWithAnnotation[] = $method;
+      }
+    }
+
+    return $methodsWithAnnotation;
+  }
+
   public function getModifiers() {
     return $this->reflection->getModifiers();
   }
@@ -177,6 +193,22 @@ class Clazz implements Annotatable {
    */
   public function getFields() {
     return array_values($this->fields);
+  }
+
+  /**
+   * @param string $qualifiedAnnotationClassName
+   * @return \Sharbat\Reflect\Field[]
+   */
+  public function getFieldsWithAnnotation($qualifiedAnnotationClassName) {
+    $fieldsWithAnnotation = array();
+
+    foreach ($this->fields as $field) {
+      if ($field->getAnnotation($qualifiedAnnotationClassName)) {
+        $fieldsWithAnnotation[] = $field;
+      }
+    }
+
+    return $fieldsWithAnnotation;
   }
 
   /**
