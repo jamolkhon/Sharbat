@@ -5,6 +5,9 @@ namespace Sharbat\Inject;
 use Sharbat\Inject\Binder\Binding;
 use Sharbat\Inject\Binder\ScopedBinding;
 
+/**
+ * \Sharbat\@Singleton
+ */
 class BindingInstantiator {
 
   private $defaultScope;

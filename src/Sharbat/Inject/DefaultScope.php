@@ -10,6 +10,9 @@ use Sharbat\Inject\Binder\ProviderBinding;
 use Sharbat\Inject\Binder\ProviderInstanceBinding;
 use Sharbat\Inject\Binder\ConstantBinding;
 
+/**
+ * \Sharbat\@Singleton
+ */
 class DefaultScope implements Scope, BindingVisitor {
 
   private $injector;

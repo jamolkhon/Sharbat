@@ -2,6 +2,9 @@
 
 namespace Sharbat\Reflect;
 
+/**
+ * \Sharbat\@Singleton
+ */
 class AnnotationParser {
 
   public function parseAnnotations($docString) {

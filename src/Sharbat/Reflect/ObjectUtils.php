@@ -2,6 +2,9 @@
 
 namespace Sharbat\Reflect;
 
+/**
+ * \Sharbat\@Singleton
+ */
 class ObjectUtils {
 
   public function createValueObject($qualifiedClassName, $fields) {
