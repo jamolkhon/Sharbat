@@ -52,10 +52,9 @@ class DefaultDependenciesProvider implements DependenciesProvider {
   }
 
   public function getDependenciesOfMethod(Method $method) {
-    $parameters = $method->getParameters();
     $dependencies = array();
 
-    foreach ($parameters as $parameter) {
+    foreach ($method->getParameters() as $parameter) {
       $dependencies[] = $this->getDependencyOfParameter($parameter);
     }
 

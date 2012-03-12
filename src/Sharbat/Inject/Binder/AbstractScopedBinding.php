@@ -6,10 +6,14 @@ use Sharbat\Reflect\Clazz;
 
 abstract class AbstractScopedBinding implements ScopedBinding {
 
-  /** @var \Sharbat\Reflect\Clazz */
+  /**
+   * @var \Sharbat\Reflect\Clazz
+   */
   protected $source;
 
-  /** @var \Sharbat\Reflect\Clazz */
+  /**
+   * @var \Sharbat\Reflect\Clazz
+   */
   protected $scope;
 
   public function getKey() {

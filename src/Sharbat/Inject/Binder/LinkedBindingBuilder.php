@@ -12,7 +12,9 @@ class LinkedBindingBuilder implements ScopedBindingBuilder {
   private $reflectionService;
   private $bindings;
 
-  /** @var \Sharbat\Inject\Binder\AbstractScopedBinding */
+  /**
+   * @var \Sharbat\Inject\Binder\AbstractScopedBinding
+   */
   private $binding;
 
   public function __construct(ReflectionService $reflectionService,

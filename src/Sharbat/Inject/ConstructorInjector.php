@@ -17,9 +17,9 @@ class ConstructorInjector {
   public function createNew() {
     if ($this->class->getConstructor() == null) {
       return $this->class->newInstance();
-    } else {
-      return $this->class->newInstanceArgs($this->constructorDependencies);
     }
+
+    return $this->class->newInstanceArgs($this->constructorDependencies);
   }
 
   public function injectTo($instance) {

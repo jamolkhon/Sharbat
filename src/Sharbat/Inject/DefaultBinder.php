@@ -15,10 +15,14 @@ class DefaultBinder implements Binder, Bindings {
   private $membersInjector;
   private $providesProvider;
 
-  /** @var \Sharbat\Inject\AbstractModule[] */
+  /**
+   * @var \Sharbat\Inject\AbstractModule[]
+   */
   private $modules = array();
 
-  /** @var \Sharbat\Inject\Binder\Binding[] */
+  /**
+   * @var \Sharbat\Inject\Binder\Binding[]
+   */
   private $bindings = array();
 
   public function __construct(ReflectionService $reflectionService,
@@ -56,24 +60,20 @@ class DefaultBinder implements Binder, Bindings {
 
   private function bindProvidesProviders(AbstractModule $module) {
     $moduleClass = $this->reflectionService->getClass(get_class($module));
+    $providesMethods = $moduleClass->getMethodsWithAnnotation(Annotations::PROVIDES);
 
-    foreach ($moduleClass->getMethods() as $method) {
+    foreach ($providesMethods as $method) {
       $providesAnnotation = $method->getFirstAnnotation(Annotations::PROVIDES);
       /* @var \Sharbat\Provides $providesAnnotation */
+      $providesProvider = $this->providesProvider->createProviderFor($module,
+        $method);
+      $scopedBindingBuilder = $this->bind($providesAnnotation->getDependencyName())
+          ->toProviderInstance($providesProvider);
+      $scopeAnnotation = $method->getFirstAnnotation(Annotations::SCOPE);
+      /* @var \Sharbat\Scope $scopeAnnotation */
 
-      if ($providesAnnotation != null) {
-        $qualifiedClassName = $providesAnnotation->getDependencyName();
-        $providesProvider = $this->providesProvider->forModuleMethod($module,
-          $method);
-        $scopedBindingBuilder = $this->bind($qualifiedClassName)
-            ->toProviderInstance($providesProvider);
-
-        $scopeAnnotation = $method->getFirstAnnotation(Annotations::SCOPE);
-        /* @var \Sharbat\Scope $scopeAnnotation */
-
-        if ($scopeAnnotation != null) {
-          $scopedBindingBuilder->in($scopeAnnotation->getScopeClassName());
-        }
+      if ($scopeAnnotation != null) {
+        $scopedBindingBuilder->in($scopeAnnotation->getScopeClassName());
       }
     }
   }

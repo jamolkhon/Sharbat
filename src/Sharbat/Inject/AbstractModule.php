@@ -6,7 +6,9 @@ use \RuntimeException;
 
 abstract class AbstractModule implements Binder {
 
-  /** @var Binder */
+  /**
+   * @var Binder
+   */
   private $binder;
 
   public function setBinder(Binder $binder) {

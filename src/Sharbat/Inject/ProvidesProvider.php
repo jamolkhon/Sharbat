@@ -9,17 +9,21 @@ class ProvidesProvider implements Provider {
 
   private $dependenciesProvider;
 
-  /** @var \Sharbat\Inject\AbstractModule */
+  /**
+   * @var \Sharbat\Inject\AbstractModule
+   */
   private $module;
 
-  /** @var \Sharbat\Reflect\Method */
+  /**
+   * @var \Sharbat\Reflect\Method
+   */
   private $method;
 
   public function __construct(DependenciesProvider $dependenciesProvider) {
     $this->dependenciesProvider = $dependenciesProvider;
   }
 
-  public function forModuleMethod(AbstractModule $module, Method $method) {
+  public function createProviderFor(AbstractModule $module, Method $method) {
     $providesProvider = new ProvidesProvider($this->dependenciesProvider);
     $providesProvider->module = $module;
     $providesProvider->method = $method;

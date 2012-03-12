@@ -29,10 +29,10 @@ class DefaultScope implements Scope, BindingVisitor {
     if ($binding->getTarget() != null) {
       return $this->injector->getInstance(
         $binding->getTarget()->getQualifiedName());
-    } else {
-      return $this->injector->createInstance(
-        $binding->getSource()->getQualifiedName());
     }
+
+    return $this->injector->createInstance(
+      $binding->getSource()->getQualifiedName());
   }
 
   public function visitInstanceBinding(InstanceBinding $binding) {
