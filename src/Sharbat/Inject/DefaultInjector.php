@@ -31,6 +31,10 @@ class DefaultInjector implements Injector, MembersInjector {
     return $this->bindingInstantiator->getInstance($binding);
   }
 
+  public function getProviderFor($qualifiedClassName) {
+    return $this->dependenciesProvider->getProviderFor($qualifiedClassName);
+  }
+
   public function getConstant($constant) {
     $constantBinding = $this->bindings->getConstantBinding($constant);
 

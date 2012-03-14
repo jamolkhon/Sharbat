@@ -27,6 +27,10 @@ class DefaultDependenciesProvider implements DependenciesProvider {
     return $this->getDependenciesOfMethod($class->getMethod($method));
   }
 
+  public function getProviderFor($qualifiedClassName) {
+    return $this->genericProvider->createProviderFor($qualifiedClassName);
+  }
+
   public function getConstructorDependencies($qualifiedClassName) {
     $class = $this->reflectionService->getClass($qualifiedClassName);
     $constructor = $class->getConstructor();
@@ -44,8 +48,7 @@ class DefaultDependenciesProvider implements DependenciesProvider {
 
     if ($injectAnnotation instanceof InjectProvider) {
       /* @var \Sharbat\InjectProvider $injectAnnotation */
-      return $this->genericProvider->createProviderFor(
-        $injectAnnotation->getTargetType());
+      return $this->getProviderFor($injectAnnotation->getTargetType());
     }
 
     return $this->injector->getInstance($injectAnnotation->getDependencyName());
@@ -80,8 +83,7 @@ class DefaultDependenciesProvider implements DependenciesProvider {
 
     foreach ($providerAnnotations as $annotation) {
       if ($annotation->getParameterName() == $parameter->getName()) {
-        return $this->genericProvider->createProviderFor(
-          $annotation->getTargetClassName());
+        return $this->getProviderFor($annotation->getTargetClassName());
       }
     }
 

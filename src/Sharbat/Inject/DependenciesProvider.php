@@ -16,6 +16,12 @@ interface DependenciesProvider {
   function getDependencies($qualifiedClassName, $method);
 
   /**
+   * @param string $qualifiedClassName
+   * @return \Sharbat\Inject\Provider
+   */
+  function getProviderFor($qualifiedClassName);
+
+  /**
    * @param \Sharbat\Reflect\Field $field
    * @return mixed
    */
