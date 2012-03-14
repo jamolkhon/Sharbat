@@ -5,7 +5,6 @@ namespace Sharbat\Inject;
 use Sharbat\Reflect\Clazz;
 
 class ConstructorInjector {
-
   private $class;
   private $constructorDependencies = array();
 
@@ -29,5 +28,4 @@ class ConstructorInjector {
       $constructor->invokeArgs($instance, $this->constructorDependencies);
     }
   }
-
 }

@@ -8,7 +8,6 @@ use Sharbat\Inject\Annotations;
 use Sharbat\Inject\Provider;
 
 class LinkedBindingBuilder implements ScopedBindingBuilder {
-
   private $reflectionService;
   private $bindings;
 
@@ -103,5 +102,4 @@ class LinkedBindingBuilder implements ScopedBindingBuilder {
   public function inNoScope() {
     $this->binding->unsetScope();
   }
-
 }

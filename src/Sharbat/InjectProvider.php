@@ -3,7 +3,6 @@
 namespace Sharbat;
 
 class InjectProvider extends Inject {
-
   private $targetClassName;
 
   public function setT($qualifiedClassName) {
@@ -13,5 +12,4 @@ class InjectProvider extends Inject {
   public function getTargetClassName() {
     return $this->targetClassName;
   }
-
 }

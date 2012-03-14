@@ -5,7 +5,6 @@ namespace Sharbat\Inject;
 use \RuntimeException;
 
 abstract class AbstractModule implements Binder {
-
   /**
    * @var Binder
    */
@@ -44,5 +43,4 @@ abstract class AbstractModule implements Binder {
   public function requestInjection($instance) {
     $this->binder->requestInjection($instance);
   }
-
 }

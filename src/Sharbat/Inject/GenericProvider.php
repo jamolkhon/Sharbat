@@ -8,7 +8,6 @@ use \RuntimeException;
  * \Sharbat\@Singleton
  */
 class GenericProvider implements Provider {
-
   private $injector;
   private $targetClassName;
 
@@ -29,5 +28,4 @@ class GenericProvider implements Provider {
     $genericProvider->targetClassName = $qualifiedClassName;
     return $genericProvider;
   }
-
 }

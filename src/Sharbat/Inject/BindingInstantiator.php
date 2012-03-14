@@ -9,7 +9,6 @@ use Sharbat\Inject\Binder\ScopedBinding;
  * \Sharbat\@Singleton
  */
 class BindingInstantiator {
-
   private $defaultScope;
   private $injector;
 
@@ -39,5 +38,4 @@ class BindingInstantiator {
 
     return $this->defaultScope;
   }
-
 }

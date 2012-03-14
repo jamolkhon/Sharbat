@@ -5,7 +5,6 @@ namespace Sharbat\Inject\Binder;
 use Sharbat\Reflect\Clazz;
 
 abstract class AbstractScopedBinding implements ScopedBinding {
-
   /**
    * @var \Sharbat\Reflect\Clazz
    */
@@ -41,5 +40,4 @@ abstract class AbstractScopedBinding implements ScopedBinding {
   public function unsetScope() {
     $this->scope = null;
   }
-
 }

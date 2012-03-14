@@ -6,7 +6,6 @@ use Sharbat\Inject\Annotatable;
 use \ReflectionProperty;
 
 class Field implements Annotatable {
-
   /**
    * @var \ReflectionProperty
    */
@@ -119,5 +118,4 @@ class Field implements Annotatable {
 
     $this->reflection->setValue($instance, $value);
   }
-
 }

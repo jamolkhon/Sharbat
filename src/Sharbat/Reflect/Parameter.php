@@ -5,7 +5,6 @@ namespace Sharbat\Reflect;
 use \ReflectionParameter;
 
 class Parameter {
-
   /**
    * @var \ReflectionParameter
    */
@@ -100,5 +99,4 @@ class Parameter {
   public function isPassedByReference() {
     return $this->reflection->isPassedByReference();
   }
-
 }

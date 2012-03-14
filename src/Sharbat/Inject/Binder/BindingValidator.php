@@ -5,7 +5,6 @@ namespace Sharbat\Inject\Binder;
 use Sharbat\Reflect\Clazz;
 
 class BindingValidator implements BindingVisitor {
-
   public function validateAll(array $bindings) {
     foreach ($bindings as $binding) {
       $this->validate($binding);
@@ -83,5 +82,4 @@ class BindingValidator implements BindingVisitor {
       throw new InvalidBindingException('Empty constant name');
     }
   }
-
 }

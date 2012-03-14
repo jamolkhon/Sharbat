@@ -10,7 +10,6 @@ use Sharbat\Reflect\Parameter;
 use \RuntimeException;
 
 class DefaultDependenciesProvider implements DependenciesProvider {
-
   private $reflectionService;
   private $injector;
   private $genericProvider;
@@ -90,5 +89,4 @@ class DefaultDependenciesProvider implements DependenciesProvider {
     throw new RuntimeException(
       'Cannot satisfy Provider dependency. No target type specified');
   }
-
 }

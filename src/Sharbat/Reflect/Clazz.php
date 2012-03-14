@@ -9,7 +9,6 @@ use \ReflectionClass;
  * \ReflectionClass wrapper with annotations
  */
 class Clazz implements Annotatable {
-
   /**
    * @var \ReflectionClass
    */
@@ -343,5 +342,4 @@ class Clazz implements Annotatable {
   public function setStaticPropertyValue($name, $value) {
     $this->reflection->setStaticPropertyValue($name, $value);
   }
-
 }

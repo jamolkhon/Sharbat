@@ -5,7 +5,6 @@ namespace Sharbat;
 use Sharbat\Inject\Annotation;
 
 class Inject implements Annotation {
-
   private $qualifiedClassName;
 
   public function __construct($qualifiedClassName = null) {
@@ -15,5 +14,4 @@ class Inject implements Annotation {
   public function getDependencyName() {
     return $this->qualifiedClassName;
   }
-
 }

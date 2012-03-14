@@ -6,7 +6,6 @@ use Sharbat\Reflect\Method;
 use \RuntimeException;
 
 class ProvidesProvider implements Provider {
-
   private $dependenciesProvider;
 
   /**
@@ -39,5 +38,4 @@ class ProvidesProvider implements Provider {
       $this->method);
     return $this->method->invokeArgs($this->module, $dependencies);
   }
-
 }

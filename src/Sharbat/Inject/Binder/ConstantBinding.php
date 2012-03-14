@@ -3,7 +3,6 @@
 namespace Sharbat\Inject\Binder;
 
 class ConstantBinding implements Binding {
-
   private $constant;
   private $value;
 
@@ -35,5 +34,4 @@ class ConstantBinding implements Binding {
   public function accept(BindingVisitor $bindingVisitor) {
     return $bindingVisitor->visitConstantBinding($this);
   }
-
 }

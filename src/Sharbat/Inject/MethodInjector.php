@@ -5,7 +5,6 @@ namespace Sharbat\Inject;
 use Sharbat\Reflect\Method;
 
 class MethodInjector implements MemberInjector {
-
   private $method;
   private $dependencies = array();
 
@@ -17,5 +16,4 @@ class MethodInjector implements MemberInjector {
   public function injectTo($instance) {
     $this->method->invokeArgs($instance, $this->dependencies);
   }
-
 }

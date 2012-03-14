@@ -5,7 +5,6 @@ namespace Sharbat\Inject\Binder;
 use Sharbat\Reflect\Clazz;
 
 interface ScopedBinding extends Binding {
-
   /**
    * @return \Sharbat\Reflect\Clazz
    */
@@ -14,5 +13,4 @@ interface ScopedBinding extends Binding {
   function setScope(Clazz $scope);
 
   function unsetScope();
-
 }

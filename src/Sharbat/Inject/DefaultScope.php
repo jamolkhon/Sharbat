@@ -14,7 +14,6 @@ use Sharbat\Inject\Binder\ConstantBinding;
  * \Sharbat\@Singleton
  */
 class DefaultScope implements Scope, BindingVisitor {
-
   private $injector;
 
   public function __construct(Injector $injector) {
@@ -53,5 +52,4 @@ class DefaultScope implements Scope, BindingVisitor {
   public function visitConstantBinding(ConstantBinding $binding) {
     return $binding->getValue();
   }
-
 }

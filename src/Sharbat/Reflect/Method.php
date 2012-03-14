@@ -6,7 +6,6 @@ use Sharbat\Inject\Annotatable;
 use \ReflectionMethod;
 
 class Method implements Annotatable {
-
   /**
    * @var \ReflectionMethod
    */
@@ -229,5 +228,4 @@ class Method implements Annotatable {
   public function returnsReference() {
     return $this->reflection->returnsReference();
   }
-
 }

@@ -17,7 +17,6 @@ use \RuntimeException;
 use Sharbat\Inject\Binder\BindingValidator;
 
 final class Sharbat {
-
   private function __construct() {
   }
 
@@ -65,5 +64,4 @@ final class Sharbat {
     $bindingValidator->validateAll($binder->getBindings());
     return $injector;
   }
-
 }

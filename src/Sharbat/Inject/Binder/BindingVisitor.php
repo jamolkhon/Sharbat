@@ -3,7 +3,6 @@
 namespace Sharbat\Inject\Binder;
 
 interface BindingVisitor {
-
   function visitLinkedBinding(LinkedBinding $binding);
 
   function visitInstanceBinding(InstanceBinding $binding);
@@ -13,5 +12,4 @@ interface BindingVisitor {
   function visitProviderInstanceBinding(ProviderInstanceBinding $binding);
 
   function visitConstantBinding(ConstantBinding $binding);
-
 }

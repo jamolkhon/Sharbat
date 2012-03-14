@@ -5,7 +5,6 @@ namespace Sharbat\Inject;
 use Sharbat\Inject\Binder\Binding;
 
 class Singleton implements Scope {
-
   private $defaultScope;
   private $instances = array();
 
@@ -22,5 +21,4 @@ class Singleton implements Scope {
 
     return $this->instances[$key];
   }
-
 }

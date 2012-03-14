@@ -5,7 +5,6 @@ namespace Sharbat\Inject;
 use Sharbat\Inject\Binder\Binding;
 
 interface Bindings {
-
   function addBinding(Binding $binding);
 
   /**
@@ -32,5 +31,4 @@ interface Bindings {
   function getBindings();
 
   function removeBinding($key);
-
 }

@@ -5,7 +5,6 @@ namespace Sharbat;
 use Sharbat\Inject\Annotation;
 
 class Provider implements Annotation {
-
   private $parameterName;
   private $targetClassName;
 
@@ -24,5 +23,4 @@ class Provider implements Annotation {
   public function getTargetClassName() {
     return $this->targetClassName;
   }
-
 }

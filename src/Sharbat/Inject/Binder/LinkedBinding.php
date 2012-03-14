@@ -5,7 +5,6 @@ namespace Sharbat\Inject\Binder;
 use Sharbat\Reflect\Clazz;
 
 class LinkedBinding extends AbstractScopedBinding {
-
   private $target;
 
   public function __construct(Clazz $source, Clazz $target = null, Clazz $scope = null) {
@@ -24,5 +23,4 @@ class LinkedBinding extends AbstractScopedBinding {
   public function accept(BindingVisitor $bindingVisitor) {
     return $bindingVisitor->visitLinkedBinding($this);
   }
-
 }

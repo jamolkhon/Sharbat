@@ -6,7 +6,6 @@ namespace Sharbat\Reflect;
  * \Sharbat\@Singleton
  */
 class ObjectUtils {
-
   public function createValueObject($qualifiedClassName, $fields) {
     $object = new $qualifiedClassName();
 
@@ -47,5 +46,4 @@ class ObjectUtils {
 
     return $fields;
   }
-
 }

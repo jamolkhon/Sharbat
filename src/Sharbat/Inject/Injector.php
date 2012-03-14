@@ -3,7 +3,6 @@
 namespace Sharbat\Inject;
 
 interface Injector {
-
   function getInstance($qualifiedClassName);
 
   /**
@@ -15,5 +14,4 @@ interface Injector {
   function getConstant($constant);
 
   function createInstance($qualifiedClassName);
-
 }

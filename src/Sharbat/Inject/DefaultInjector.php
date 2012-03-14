@@ -7,7 +7,6 @@ use \RuntimeException;
 use Sharbat\Reflect\Clazz;
 
 class DefaultInjector implements Injector, MembersInjector {
-
   private $bindings;
   private $bindingInstantiator;
   private $reflectionService;
@@ -122,5 +121,4 @@ class DefaultInjector implements Injector, MembersInjector {
 
     return $injectors;
   }
-
 }

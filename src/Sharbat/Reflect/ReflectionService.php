@@ -9,7 +9,6 @@ use \ReflectionMethod;
 use \RuntimeException;
 
 class ReflectionService implements Serializable {
-
   private $annotationParser;
   private $objectUtils;
 
@@ -171,5 +170,4 @@ class ReflectionService implements Serializable {
     list($this->annotationParser, $this->objectUtils, $this->annotations) =
         unserialize($data);
   }
-
 }

@@ -6,7 +6,6 @@ use Sharbat\Reflect\Clazz;
 use Sharbat\Inject\Provider;
 
 class ProviderInstanceBinding extends AbstractScopedBinding {
-
   private $provider;
 
   public function __construct(Clazz $source, Provider $provider, Clazz $scope = null) {
@@ -25,5 +24,4 @@ class ProviderInstanceBinding extends AbstractScopedBinding {
   public function accept(BindingVisitor $bindingVisitor) {
     return $bindingVisitor->visitProviderInstanceBinding($this);
   }
-
 }

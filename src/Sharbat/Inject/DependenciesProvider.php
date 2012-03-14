@@ -7,7 +7,6 @@ use Sharbat\Reflect\Method;
 use Sharbat\Reflect\Parameter;
 
 interface DependenciesProvider {
-
   /**
    * @param string $qualifiedClassName
    * @param string $method
@@ -44,5 +43,4 @@ interface DependenciesProvider {
    * @return mixed
    */
   function getDependencyOfParameter(Parameter $parameter);
-
 }

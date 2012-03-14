@@ -10,7 +10,6 @@ use Sharbat\Inject\Binder\ConstantBinding;
 use Sharbat\Reflect\Method;
 
 class DefaultBinder implements Binder, Bindings {
-
   private $reflectionService;
   private $linkedBindingBuilder;
   private $membersInjector;
@@ -144,5 +143,4 @@ class DefaultBinder implements Binder, Bindings {
   public function removeBinding($key) {
     unset($this->bindings[$key]);
   }
-
 }

@@ -3,7 +3,6 @@
 namespace Sharbat\Inject;
 
 interface Binder {
-
   /**
    * @param string $qualifiedClassName
    * @return \Sharbat\Inject\Binder\LinkedBindingBuilder
@@ -24,5 +23,4 @@ interface Binder {
   function build();
 
   function requestInjection($instance);
-
 }

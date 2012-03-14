@@ -5,7 +5,6 @@ namespace Sharbat\Inject;
 use Sharbat\Reflect\Field;
 
 class FieldInjector implements MemberInjector {
-
   private $field;
   private $dependency;
 
@@ -17,5 +16,4 @@ class FieldInjector implements MemberInjector {
   public function injectTo($instance) {
     $this->field->setValue($instance, $this->dependency);
   }
-
 }
