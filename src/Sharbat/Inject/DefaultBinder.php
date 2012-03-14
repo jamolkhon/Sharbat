@@ -7,6 +7,7 @@ use Sharbat\Inject\Binder\LinkedBindingBuilder;
 use Sharbat\Inject\Binder\Binding;
 use Sharbat\Inject\Binder\SourceAlreadyBoundException;
 use Sharbat\Inject\Binder\ConstantBinding;
+use Sharbat\Reflect\Method;
 
 class DefaultBinder implements Binder, Bindings {
 
@@ -58,32 +59,33 @@ class DefaultBinder implements Binder, Bindings {
     $this->modules[] = $module;
   }
 
-  private function bindProvidesProviders(AbstractModule $module) {
-    $moduleClass = $this->reflectionService->getClass(get_class($module));
-    $providesMethods = $moduleClass->getMethodsWithAnnotation(Annotations::PROVIDES);
-
-    foreach ($providesMethods as $method) {
-      $providesAnnotation = $method->getFirstAnnotation(Annotations::PROVIDES);
-      /* @var \Sharbat\Provides $providesAnnotation */
-      $providesProvider = $this->providesProvider->createProviderFor($module,
-        $method);
-      $scopedBindingBuilder = $this->bind($providesAnnotation->getDependencyName())
-          ->toProviderInstance($providesProvider);
-      $scopeAnnotation = $method->getFirstAnnotation(Annotations::SCOPE);
-      /* @var \Sharbat\Scope $scopeAnnotation */
-
-      if ($scopeAnnotation != null) {
-        $scopedBindingBuilder->in($scopeAnnotation->getScopeClassName());
-      }
-    }
-  }
-
   public function build() {
     foreach ($this->modules as $module) {
-      $this->bindProvidesProviders($module);
+      $moduleClass = $this->reflectionService->getClass(get_class($module));
+      $providesMethods = $moduleClass->getMethodsWithAnnotation(
+        Annotations::PROVIDES);
+
+      foreach ($providesMethods as $method) {
+        $this->bindAsProvider($method, $module);
+      }
     }
 
     return $this;
+  }
+
+  private function bindAsProvider(Method $method, AbstractModule $module) {
+    $providesProvider = $this->providesProvider->createProviderFor($module,
+      $method);
+    $providesAnnotation = $method->getFirstAnnotation(Annotations::PROVIDES);
+    /* @var \Sharbat\Provides $providesAnnotation */
+    $scopedBindingBuilder = $this->bind($providesAnnotation->getDependencyName())
+        ->toProviderInstance($providesProvider);
+    $scopeAnnotation = $method->getFirstAnnotation(Annotations::SCOPE);
+    /* @var \Sharbat\Scope $scopeAnnotation */
+
+    if ($scopeAnnotation != null) {
+      $scopedBindingBuilder->in($scopeAnnotation->getScopeClassName());
+    }
   }
 
   public function requestInjection($instance) {

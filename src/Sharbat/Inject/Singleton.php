@@ -2,7 +2,6 @@
 
 namespace Sharbat\Inject;
 
-use Sharbat\Inject\DefaultScope;
 use Sharbat\Inject\Binder\Binding;
 
 class Singleton implements Scope {

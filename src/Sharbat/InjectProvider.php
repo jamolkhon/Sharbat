@@ -4,14 +4,14 @@ namespace Sharbat;
 
 class InjectProvider extends Inject {
 
-  private $targetType;
+  private $targetClassName;
 
   public function setT($qualifiedClassName) {
-    $this->targetType = $qualifiedClassName;
+    $this->targetClassName = $qualifiedClassName;
   }
 
-  public function getTargetType() {
-    return $this->targetType;
+  public function getTargetClassName() {
+    return $this->targetClassName;
   }
 
 }

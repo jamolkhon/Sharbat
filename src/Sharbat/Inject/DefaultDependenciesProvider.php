@@ -48,7 +48,7 @@ class DefaultDependenciesProvider implements DependenciesProvider {
 
     if ($injectAnnotation instanceof InjectProvider) {
       /* @var \Sharbat\InjectProvider $injectAnnotation */
-      return $this->getProviderFor($injectAnnotation->getTargetType());
+      return $this->getProviderFor($injectAnnotation->getTargetClassName());
     }
 
     return $this->injector->getInstance($injectAnnotation->getDependencyName());

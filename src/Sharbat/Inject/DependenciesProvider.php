@@ -22,16 +22,16 @@ interface DependenciesProvider {
   function getProviderFor($qualifiedClassName);
 
   /**
-   * @param \Sharbat\Reflect\Field $field
-   * @return mixed
-   */
-  function getDependencyOfField(Field $field);
-
-  /**
    * @param string $qualifiedClassName
    * @return array
    */
   function getConstructorDependencies($qualifiedClassName);
+
+  /**
+   * @param \Sharbat\Reflect\Field $field
+   * @return mixed
+   */
+  function getDependencyOfField(Field $field);
 
   /**
    * @param \Sharbat\Reflect\Method $method

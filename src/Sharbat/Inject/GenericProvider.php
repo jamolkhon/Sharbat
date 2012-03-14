@@ -10,23 +10,23 @@ use \RuntimeException;
 class GenericProvider implements Provider {
 
   private $injector;
-  private $targetType;
+  private $targetClassName;
 
   public function __construct(Injector $injector) {
     $this->injector = $injector;
   }
 
   public function get() {
-    if ($this->targetType == null) {
-      throw new RuntimeException('Invalid state: targetType is null');
+    if ($this->targetClassName == null) {
+      throw new RuntimeException('Invalid state: targetClassName is null');
     }
 
-    return $this->injector->getInstance($this->targetType);
+    return $this->injector->getInstance($this->targetClassName);
   }
 
   public function createProviderFor($qualifiedClassName) {
     $genericProvider = new GenericProvider($this->injector);
-    $genericProvider->targetType = $qualifiedClassName;
+    $genericProvider->targetClassName = $qualifiedClassName;
     return $genericProvider;
   }
 
