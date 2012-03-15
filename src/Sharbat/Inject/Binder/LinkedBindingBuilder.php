@@ -27,8 +27,8 @@ class LinkedBindingBuilder implements ScopedBindingBuilder {
     $this->binding = new LinkedBinding($class);
     $this->bindings->addBinding($this->binding);
 
+    /** @var \Sharbat\Scope $scopeAnnotation */
     $scopeAnnotation = $class->getFirstAnnotation(Annotations::SCOPE);
-    /* @var \Sharbat\Scope $scopeAnnotation */
 
     if ($scopeAnnotation != null) {
       $scopeClass = $this->reflectionService->getClass(

@@ -75,12 +75,12 @@ class DefaultBinder implements Binder, Bindings {
   private function bindAsProvider(Method $method, AbstractModule $module) {
     $providesProvider = $this->providesProvider->createProviderFor($module,
       $method);
+    /** @var \Sharbat\Provides $providesAnnotation */
     $providesAnnotation = $method->getFirstAnnotation(Annotations::PROVIDES);
-    /* @var \Sharbat\Provides $providesAnnotation */
     $scopedBindingBuilder = $this->bind($providesAnnotation->getDependencyName())
         ->toProviderInstance($providesProvider);
+    /** @var \Sharbat\Scope $scopeAnnotation */
     $scopeAnnotation = $method->getFirstAnnotation(Annotations::SCOPE);
-    /* @var \Sharbat\Scope $scopeAnnotation */
 
     if ($scopeAnnotation != null) {
       $scopedBindingBuilder->in($scopeAnnotation->getScopeClassName());

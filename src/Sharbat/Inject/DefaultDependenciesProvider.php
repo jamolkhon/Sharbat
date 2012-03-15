@@ -42,11 +42,11 @@ class DefaultDependenciesProvider implements DependenciesProvider {
   }
 
   public function getDependencyOfField(Field $field) {
+    /** @var \Sharbat\Inject $injectAnnotation */
     $injectAnnotation = $field->getFirstAnnotation(Annotations::INJECT);
-    /* @var \Sharbat\Inject $injectAnnotation */
 
     if ($injectAnnotation instanceof InjectProvider) {
-      /* @var \Sharbat\InjectProvider $injectAnnotation */
+      /** @var \Sharbat\InjectProvider $injectAnnotation */
       return $this->getProviderFor($injectAnnotation->getTargetClassName());
     }
 
@@ -76,9 +76,9 @@ class DefaultDependenciesProvider implements DependenciesProvider {
       return $this->injector->getInstance($class->getQualifiedName());
     }
 
+    /** @var \Sharbat\Provider[] $providerAnnotations */
     $providerAnnotations = $parameter->getDeclaringMethod()->getAnnotations(
-      Annotations::PROVIDER);
-    /* @var \Sharbat\Provider[] $providerAnnotations */
+    Annotations::PROVIDER);
 
     foreach ($providerAnnotations as $annotation) {
       if ($annotation->getParameterName() == $parameter->getName()) {

@@ -86,7 +86,7 @@ class ReflectionService implements Serializable {
     $methods = array();
 
     foreach ($reflection->getMethods() as $method) {
-      /* @var \ReflectionMethod $method */
+      /** @var \ReflectionMethod $method */
       $methods[$method->getName()] = $this->createMethod($method, $class);
     }
 
@@ -139,8 +139,8 @@ class ReflectionService implements Serializable {
       throw new RuntimeException($qualifiedClassName . ' is not an annotation');
     }
 
+    /** @var \ReflectionMethod $constructor */
     $constructor = $reflection->getConstructor();
-    /* @var \ReflectionMethod $constructor */
 
     $numberOfArguments = count($arguments);
     $numberOfStringKeys = count(array_filter(array_keys($arguments), 'is_string'));

@@ -19,7 +19,7 @@ class BindingInstantiator {
 
   public function getInstance(Binding $binding) {
     if ($binding instanceof ScopedBinding) {
-      /* @var \Sharbat\Inject\Binder\ScopedBinding $binding */
+      /** @var \Sharbat\Inject\Binder\ScopedBinding $binding */
       return $this->getScopeInstance($binding)->getInstance($binding);
     }
 

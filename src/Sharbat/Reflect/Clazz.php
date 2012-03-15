@@ -110,8 +110,8 @@ class Clazz implements Annotatable {
    * @return \Sharbat\Reflect\Method
    */
   public function getConstructor() {
+    /** @var \ReflectionMethod $constructor */
     $constructor = $this->reflection->getConstructor();
-    /* @var \ReflectionMethod $constructor */
 
     if ($constructor != null && isset($this->methods[$constructor->getName()])) {
       return $this->methods[$constructor->getName()];
@@ -277,8 +277,8 @@ class Clazz implements Annotatable {
   }
 
   public function invokeConstructorIfExists($instance, array $arguments) {
+    /** @var \ReflectionMethod $constructor */
     $constructor = $this->reflection->getConstructor();
-    /* @var \ReflectionMethod $constructor */
 
     if ($constructor != null) {
       $constructor->invokeArgs($instance, $arguments);

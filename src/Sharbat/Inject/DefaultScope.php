@@ -40,8 +40,8 @@ class DefaultScope implements Scope, BindingVisitor {
 
   public function visitProviderBinding(ProviderBinding $binding) {
     $providerClass = $binding->getProvider();
+    /** @var Provider $provider */
     $provider = $this->injector->getInstance($providerClass->getQualifiedName());
-    /* @var \Sharbat\Inject\Provider $provider */
     return $provider->get();
   }
 
