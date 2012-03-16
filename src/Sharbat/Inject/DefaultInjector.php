@@ -11,6 +11,7 @@ class DefaultInjector implements Injector, MembersInjector {
   private $bindingInstantiator;
   private $reflectionService;
   private $dependenciesProvider;
+  private $injectorProvider;
 
   private $dependencies = array();
   private $incompleteInstances = array();
@@ -18,11 +19,13 @@ class DefaultInjector implements Injector, MembersInjector {
   public function __construct(Bindings $bindings,
       BindingInstantiator $bindingInstantiator,
       ReflectionService $reflectionService,
-      DependenciesProvider $dependenciesProvider) {
+      DependenciesProvider $dependenciesProvider,
+      InjectorProvider $injectorProvider) {
     $this->bindings = $bindings;
     $this->bindingInstantiator = $bindingInstantiator;
     $this->reflectionService = $reflectionService;
     $this->dependenciesProvider = $dependenciesProvider;
+    $this->injectorProvider = $injectorProvider;
   }
 
   public function getInstance($qualifiedClassName) {
@@ -55,8 +58,9 @@ class DefaultInjector implements Injector, MembersInjector {
     }
 
     $this->dependencies[$qualifiedClassName] = true;
-    $constructorInjector = $this->getConstructorInjector($class);
-    $memberInjectors = $this->getMemberInjectors($class);
+    $constructorInjector = $this->injectorProvider->getConstructorInjector(
+      $class);
+    $memberInjectors = $this->injectorProvider->getMemberInjectors($class);
     $instance = $constructorInjector->createNew();
 
     foreach ($memberInjectors as $injector) {
@@ -78,47 +82,10 @@ class DefaultInjector implements Injector, MembersInjector {
 
   public function injectTo($instance) {
     $class = $this->reflectionService->getClass(get_class($instance));
+    $memberInjectors = $this->injectorProvider->getMemberInjectors($class);
 
-    foreach ($this->getMemberInjectors($class) as $injector) {
+    foreach ($memberInjectors as $injector) {
       $injector->injectTo($instance);
     }
-  }
-
-  /**
-   * @param \Sharbat\Reflect\Clazz $class
-   * @return \Sharbat\Inject\ConstructorInjector
-   */
-  private function getConstructorInjector(Clazz $class) {
-    $dependencies = $this->dependenciesProvider->getConstructorDependencies(
-      $class->getQualifiedName());
-    return new ConstructorInjector($class, $dependencies);
-  }
-
-  /**
-   * @param \Sharbat\Reflect\Clazz $class
-   * @return \Sharbat\Inject\MemberInjector[]
-   */
-  private function getMemberInjectors(Clazz $class) {
-    $injectors = array();
-    $injectableFields = $class->getFieldsWithAnnotation(Annotations::INJECT);
-
-    foreach ($injectableFields as $field) {
-      if (!$field->isStatic()) {
-        $dependency = $this->dependenciesProvider->getDependencyOfField($field);
-        $injectors[] = new FieldInjector($field, $dependency);
-      }
-    }
-
-    $injectableMethods = $class->getMethodsWithAnnotation(Annotations::INJECT);
-
-    foreach ($injectableMethods as $method) {
-      if (!$method->isStatic()) {
-        $dependencies = $this->dependenciesProvider->getDependenciesOfMethod(
-          $method);
-        $injectors[] = new MethodInjector($method, $dependencies);
-      }
-    }
-
-    return $injectors;
   }
 }

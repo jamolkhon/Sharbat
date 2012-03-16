@@ -7,6 +7,7 @@ use Sharbat\Reflect\ObjectUtils;
 use Sharbat\Reflect\ReflectionService;
 use Sharbat\Inject\GenericProvider;
 use Sharbat\Inject\DefaultDependenciesProvider;
+use Sharbat\Inject\InjectorProvider;
 use Sharbat\Inject\ProvidesProvider;
 use Sharbat\Inject\DefaultBinder;
 use Sharbat\Inject\DefaultScope;
@@ -33,12 +34,14 @@ final class Sharbat {
     $genericProvider = new GenericProvider($injector);
     $dependenciesProvider = new DefaultDependenciesProvider($reflectionService,
       $injector, $genericProvider);
+    $injectorProvider = new InjectorProvider($dependenciesProvider);
     $providesProvider = new ProvidesProvider($dependenciesProvider);
     $binder = new DefaultBinder($reflectionService, $injector, $providesProvider);
     $defaultScope = new DefaultScope($injector);
     $bindingInstantiator = new BindingInstantiator($defaultScope, $injector);
     $injectorClass->invokeConstructorIfExists($injector, array($binder,
-      $bindingInstantiator, $reflectionService, $dependenciesProvider));
+      $bindingInstantiator, $reflectionService, $dependenciesProvider,
+      $injectorProvider));
 
     $binder->bind('\Sharbat\Inject\DependenciesProvider')->to(
       '\Sharbat\Inject\DefaultDependenciesProvider')->inSingleton();
