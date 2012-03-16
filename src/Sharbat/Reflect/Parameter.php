@@ -30,9 +30,10 @@ class Parameter {
 
   public function getDeclaration() {
     $declaration = '';
+    $class = $this->reflection->getClass();
 
-    if ($this->reflection->getClass() != null) {
-      $declaration .= $this->reflection->getName();
+    if ($class != null) {
+      $declaration .= $class->getName();
     } else if ($this->reflection->isArray()) {
       $declaration .= 'array';
     }
