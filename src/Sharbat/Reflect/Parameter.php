@@ -45,8 +45,8 @@ class Parameter {
     }
 
     if ($this->reflection->isDefaultValueAvailable()) {
-      $declaration .= ' = ' . var_export($this->reflection->getDefaultValue(),
-        true);
+      $defaultValue = $this->reflection->getDefaultValue();
+      $declaration .= ' = ' . var_export($defaultValue, true);
     }
 
     return trim($declaration);

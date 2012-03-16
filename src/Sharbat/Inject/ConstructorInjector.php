@@ -14,18 +14,11 @@ class ConstructorInjector {
   }
 
   public function createNew() {
-    if ($this->class->getConstructor() == null) {
-      return $this->class->newInstance();
-    }
-
     return $this->class->newInstanceArgs($this->constructorDependencies);
   }
 
   public function injectTo($instance) {
-    $constructor = $this->class->getConstructor();
-
-    if ($constructor != null) {
-      $constructor->invokeArgs($instance, $this->constructorDependencies);
-    }
+    $this->class->invokeConstructorIfExists($instance,
+      $this->constructorDependencies);
   }
 }

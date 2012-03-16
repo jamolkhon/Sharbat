@@ -326,7 +326,7 @@ class Clazz implements Annotatable {
   }
 
   public function newInstanceArgs(array $arguments) {
-    if (empty($arguments)) {
+    if ($this->reflection->getConstructor() == null || empty($arguments)) {
       return $this->reflection->newInstance();
     }
 
