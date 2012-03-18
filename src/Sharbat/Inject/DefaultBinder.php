@@ -77,6 +77,11 @@ class DefaultBinder implements Binder, Bindings {
       $method);
     /** @var \Sharbat\Provides $providesAnnotation */
     $providesAnnotation = $method->getFirstAnnotation(Annotations::PROVIDES);
+
+    if ($this->getBinding($providesAnnotation->getDependencyName())) {
+      return;
+    }
+
     $scopedBindingBuilder = $this->bind($providesAnnotation->getDependencyName())
         ->toProviderInstance($providesProvider);
     /** @var \Sharbat\Scope $scopeAnnotation */
