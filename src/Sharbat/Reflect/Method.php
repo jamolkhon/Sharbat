@@ -6,6 +6,13 @@ use Sharbat\Inject\Annotatable;
 use \ReflectionMethod;
 
 class Method implements Annotatable {
+  const ALL = 1799;
+  const IS_STATIC = 1;
+  const IS_PUBLIC = 256;
+  const IS_PROTECTED = 512;
+  const IS_PRIVATE = 1024;
+  const IS_ABSTRACT = 2;
+  const IS_FINAL = 4;
   /**
    * @var \ReflectionMethod
    */
@@ -38,6 +45,62 @@ class Method implements Annotatable {
    */
   public function getInternalReflection() {
     return $this->reflection;
+  }
+
+  public function createDefinition($methodBody) {
+    return implode("\n", array($this->reflection->getDocComment(),
+      $this->getHeaderDefinition() . ' {', $methodBody, '}'));
+  }
+
+  public function getHeaderDefinition() {
+    $headerDeclaration = '';
+
+    if ($this->reflection->isPublic()) {
+      $headerDeclaration .= 'public';
+    } else if ($this->reflection->isProtected()) {
+      $headerDeclaration .= 'protected';
+    } else if ($this->reflection->isPrivate()) {
+      $headerDeclaration .= 'private';
+    }
+
+    if ($this->reflection->isStatic()) {
+      $headerDeclaration .= ' static';
+    }
+
+    $headerDeclaration .= ' function';
+
+    if ($this->reflection->returnsReference()) {
+      $headerDeclaration .= ' &' . $this->reflection->getShortName();
+    } else {
+      $headerDeclaration .= ' ' . $this->reflection->getShortName();
+    }
+
+    $headerDeclaration .= $this->getParameterListDefinition(true);
+    return $headerDeclaration;
+  }
+
+  public function getParameterListDefinition($withParentheses = false) {
+    $parameterDeclarations = array();
+
+    foreach ($this->parameters as $parameter) {
+      $parameterDeclarations[] = $parameter->getDefinition();
+    }
+
+    $parameterListDeclaration = implode(', ', $parameterDeclarations);
+
+    if ($withParentheses) {
+      $parameterListDeclaration = '(' . $parameterListDeclaration . ')';
+    }
+
+    return $parameterListDeclaration;
+  }
+
+  /**
+   * @param string $qualifiedClassName
+   * @return bool
+   */
+  public function hasAnnotation($qualifiedClassName) {
+    return $this->getFirstAnnotation($qualifiedClassName) != null;
   }
 
   /**
@@ -131,13 +194,7 @@ class Method implements Annotatable {
    * @return \Sharbat\Reflect\Parameter[]
    */
   public function getParameters() {
-    $parameters = array();
-
-    foreach ($this->reflection->getParameters() as $parameter) {
-      $parameters[] = new Parameter($parameter, $this);
-    }
-
-    return $parameters;
+    return $this->parameters;
   }
 
   public function getUnqualifiedName() {
@@ -156,17 +213,12 @@ class Method implements Annotatable {
     return $this->reflection->getStaticVariables();
   }
 
-  public function inNamespace() {
+  public function isNamespaced() {
     return $this->reflection->inNamespace();
   }
 
   public function invoke($instance) {
-    if (!$this->reflection->isPublic()) {
-      $this->reflection->setAccessible(true);
-    }
-
-    return call_user_func_array(array($this->reflection, 'invoke'),
-      func_get_args());
+    return $this->invokeArgs($instance, array_slice(func_get_args(), 1));
   }
 
   public function invokeArgs($instance, array $arguments) {

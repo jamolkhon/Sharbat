@@ -3,15 +3,22 @@
 namespace Sharbat\Inject;
 
 use Sharbat\Inject\Binder\Binding;
+use Sharbat\Reflect\Clazz;
 
 interface Bindings {
   function addBinding(Binding $binding);
 
   /**
-   * @param string $key
+   * @param object $object
+   * @return array
+   */
+  function getInterceptors($object);
+
+  /**
+   * @param \Sharbat\Reflect\Clazz $class
    * @return \Sharbat\Inject\Binder\Binding|null
    */
-  function getBinding($key);
+  function getBinding(Clazz $class);
 
   /**
    * @param string $constant
@@ -20,10 +27,10 @@ interface Bindings {
   function getConstantBinding($constant);
 
   /**
-   * @param string $key
+   * @param \Sharbat\Reflect\Clazz $class
    * @return \Sharbat\Inject\Binder\Binding
    */
-  function getOrCreateBinding($key);
+  function getOrCreateBinding(Clazz $class);
 
   /**
    * @return \Sharbat\Inject\Binder\Binding[]

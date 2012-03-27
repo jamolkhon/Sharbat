@@ -28,7 +28,7 @@ class Parameter {
     return $this->reflection;
   }
 
-  public function getDeclaration() {
+  public function getDefinition() {
     $declaration = '';
     $class = $this->reflection->getClass();
 

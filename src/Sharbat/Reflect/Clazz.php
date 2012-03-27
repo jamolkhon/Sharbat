@@ -54,11 +54,21 @@ class Clazz implements Annotatable {
     return $this->reflection;
   }
 
+  public static function getCanonicalName($qualifiedName) {
+    return ltrim($qualifiedName, '\\');
+  }
+
   public function nameEquals($qualifiedClassName) {
-    $backslash = '\\';
-    $passedName = ltrim($qualifiedClassName, $backslash);
-    $myName = ltrim($this->getQualifiedName(), $backslash);
-    return strcasecmp($passedName, $myName) === 0;
+    return $this->reflection->getName() === self::getCanonicalName(
+      $qualifiedClassName);
+  }
+
+  /**
+   * @param string $qualifiedClassName
+   * @return bool
+   */
+  public function hasAnnotation($qualifiedClassName) {
+    return $this->getFirstAnnotation($qualifiedClassName) != null;
   }
 
   /**
@@ -112,12 +122,8 @@ class Clazz implements Annotatable {
   public function getConstructor() {
     /** @var \ReflectionMethod $constructor */
     $constructor = $this->reflection->getConstructor();
-
-    if ($constructor != null && isset($this->methods[$constructor->getName()])) {
-      return $this->methods[$constructor->getName()];
-    }
-
-    return null;
+    return $constructor == null ? null :
+        $this->methods[$constructor->getShortName()];
   }
 
   public function getDocComment() {
@@ -166,20 +172,36 @@ class Clazz implements Annotatable {
   }
 
   /**
+   * @param int $filter
    * @return \Sharbat\Reflect\Method[]
    */
-  public function getMethods() {
-    return array_values($this->methods);
+  public function getMethods($filter = null) {
+    if ($filter === null) {
+      return array_values($this->methods);
+    }
+
+    $methods = array();
+    /** @var \ReflectionMethod[] $reflectionMethods */
+    $reflectionMethods = $this->reflection->getMethods($filter);
+
+    foreach ($reflectionMethods as $method) {
+      $methods[] = $this->methods[$method->getShortName()];
+    }
+
+    return $methods;
   }
 
   /**
    * @param string $qualifiedAnnotationClassName
+   * @param int $filter
    * @return \Sharbat\Reflect\Method[]
    */
-  public function getMethodsWithAnnotation($qualifiedAnnotationClassName) {
+  public function getMethodsWithAnnotation($qualifiedAnnotationClassName,
+      $filter = null) {
+    $methods = $filter === null ? $this->methods : $this->getMethods($filter);
     $methodsWithAnnotation = array();
 
-    foreach ($this->methods as $method) {
+    foreach ($methods as $method) {
       if ($method->getFirstAnnotation($qualifiedAnnotationClassName)) {
         $methodsWithAnnotation[] = $method;
       }
@@ -211,20 +233,35 @@ class Clazz implements Annotatable {
   }
 
   /**
+   * @param int $filter
    * @return \Sharbat\Reflect\Field[]
    */
-  public function getFields() {
-    return array_values($this->fields);
+  public function getFields($filter = null) {
+    if ($filter === null) {
+      return array_values($this->fields);
+    }
+
+    $fields = array();
+    $reflectionProperties = $this->reflection->getProperties($filter);
+
+    foreach ($reflectionProperties as $property) {
+      $fields[] = $this->fields[$property->getName()];
+    }
+
+    return $fields;
   }
 
   /**
    * @param string $qualifiedAnnotationClassName
+   * @param int $filter
    * @return \Sharbat\Reflect\Field[]
    */
-  public function getFieldsWithAnnotation($qualifiedAnnotationClassName) {
+  public function getFieldsWithAnnotation($qualifiedAnnotationClassName,
+      $filter = null) {
+    $fields = $filter === null ? $this->fields : $this->getFields($filter);
     $fieldsWithAnnotation = array();
 
-    foreach ($this->fields as $field) {
+    foreach ($fields as $field) {
       if ($field->getFirstAnnotation($qualifiedAnnotationClassName)) {
         $fieldsWithAnnotation[] = $field;
       }
@@ -245,7 +282,7 @@ class Clazz implements Annotatable {
    * @return string
    */
   public function getUnqualifiedName() {
-    $this->reflection->getShortName();
+    return $this->reflection->getShortName();
   }
 
   public function getStartLine() {
@@ -272,8 +309,25 @@ class Clazz implements Annotatable {
     return $this->reflection->implementsInterface($interface);
   }
 
-  public function inNamespace() {
+  public function isNamespaced() {
     return $this->reflection->inNamespace();
+  }
+
+  public function inNamespace($qualifiedNamespaceName) {
+    return self::getCanonicalName($qualifiedNamespaceName) . '\\' .
+        $this->reflection->getShortName() === $this->reflection->getName();
+  }
+
+  public function inSubNamespace($qualifiedNamespaceName) {
+    return $this->inNamespaceOrSub($qualifiedNamespaceName) &&
+        strlen(self::getCanonicalName($qualifiedNamespaceName)) < strlen(
+          $this->reflection->getNamespaceName());
+  }
+
+  public function inNamespaceOrSub($qualifiedNamespaceName) {
+    $canonicalNamespaceName = self::getCanonicalName($qualifiedNamespaceName);
+    return strpos($this->reflection->getNamespaceName(),
+      $canonicalNamespaceName) === 0;
   }
 
   public function invokeConstructorIfExists($instance, array $arguments) {
@@ -326,7 +380,7 @@ class Clazz implements Annotatable {
   }
 
   public function newInstanceArgs(array $arguments) {
-    if ($this->reflection->getConstructor() == null || empty($arguments)) {
+    if (empty($arguments) || $this->reflection->getConstructor() == null) {
       return $this->reflection->newInstance();
     }
 

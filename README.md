@@ -8,6 +8,7 @@ Annotation based dependency injection framework for PHP5 inspired from Google Gu
 + Constructor/field/method injection
 + Private/protected/public injection
 + Circular dependencies
++ AOP (method interceptors)
 + Custom scopes
 + Custom annotations
 
@@ -18,12 +19,16 @@ Annotation based dependency injection framework for PHP5 inspired from Google Gu
 
 # Usage
     class MainModule extends \Sharbat\Inject\AbstractModule {
-    
       public function configure() {
         $this->bind('MyApp')->inSingleton();
         $this->bind('HttpClient')->to('CurlHttpClient');
         $this->bind('MappingProvider')->to('SimpleMappingProvider')->inSingleton();
         $this->bind('\Third\Party\EntityManager')->toInstance(new MyEntityManager());
+        
+        $transactionInterceptor = new TransactionInterceptor();
+        $this->requestInjection($transactionInterceptor);
+        $this->bindInterceptor(Matchers::any(),
+          Matchers::annotatedWithType('Transactional'), $transactionInterceptor);
         
         $this->install(new DevelopmentModule());
       }
@@ -35,11 +40,9 @@ Annotation based dependency injection framework for PHP5 inspired from Google Gu
       public function providePdo($dbuser, $dbpass) {
         return new PDO('mysql:dbname=myappdb;host=localhost', $dbuser, $dbpass);
       }
-    
     }
     
     class DevelopmentModule extends \Sharbat\Inject\AbstractModule {
-    
       public function configure() {
         ini_set('display_errors', 'On');
         ini_set('error_reporting', E_ALL|E_STRICT);
@@ -47,7 +50,6 @@ Annotation based dependency injection framework for PHP5 inspired from Google Gu
         $this->bindConstant('dbuser')->to('myuser');
         $this->bindConstant('dbpass')->to('mypass');
       }
-    
     }
     
     $injector = \Sharbat\Sharbat::createInjector(new MainModule());

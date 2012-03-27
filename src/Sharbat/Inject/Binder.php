@@ -2,6 +2,9 @@
 
 namespace Sharbat\Inject;
 
+use Sharbat\Inject\Binder\Matcher;
+use Sharbat\Intercept\Interceptor;
+
 interface Binder {
   /**
    * @param string $qualifiedClassName
@@ -14,6 +17,9 @@ interface Binder {
    * @return \Sharbat\Inject\Binder\ConstantBinding
    */
   function bindConstant($constant);
+
+  function bindInterceptor(Matcher $classMatcher, Matcher $methodMatcher,
+    Interceptor $interceptor);
 
   function install(AbstractModule $module);
 

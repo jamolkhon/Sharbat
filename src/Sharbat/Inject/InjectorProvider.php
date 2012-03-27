@@ -3,6 +3,8 @@
 namespace Sharbat\Inject;
 
 use Sharbat\Reflect\Clazz;
+use Sharbat\Reflect\Field;
+use Sharbat\Reflect\Method;
 
 class InjectorProvider {
   private $dependenciesProvider;
@@ -27,13 +29,13 @@ class InjectorProvider {
    */
   public function getFieldInjectors(Clazz $class) {
     $fieldInjectors = array();
-    $injectableFields = $class->getFieldsWithAnnotation(Annotations::INJECT);
+    $nonStaticFieldsFilter = Field::ALL & ~Field::IS_STATIC;
+    $injectableFields = $class->getFieldsWithAnnotation(Annotations::INJECT,
+      $nonStaticFieldsFilter);
 
     foreach ($injectableFields as $field) {
-      if (!$field->isStatic()) {
-        $dependency = $this->dependenciesProvider->getDependencyOfField($field);
-        $fieldInjectors[] = new FieldInjector($field, $dependency);
-      }
+      $dependency = $this->dependenciesProvider->getDependencyOfField($field);
+      $fieldInjectors[] = new FieldInjector($field, $dependency);
     }
 
     return $fieldInjectors;
@@ -45,14 +47,14 @@ class InjectorProvider {
    */
   public function getMethodInjectors(Clazz $class) {
     $methodInjectors = array();
-    $injectableMethods = $class->getMethodsWithAnnotation(Annotations::INJECT);
+    $nonStaticMethodsFilter = Method::ALL & ~Method::IS_STATIC;
+    $injectableMethods = $class->getMethodsWithAnnotation(Annotations::INJECT,
+      $nonStaticMethodsFilter);
 
     foreach ($injectableMethods as $method) {
-      if (!$method->isStatic()) {
-        $dependencies = $this->dependenciesProvider->getDependenciesOfMethod(
-          $method);
-        $methodInjectors[] = new MethodInjector($method, $dependencies);
-      }
+      $dependencies = $this->dependenciesProvider->getDependenciesOfMethod(
+        $method);
+      $methodInjectors[] = new MethodInjector($method, $dependencies);
     }
 
     return $methodInjectors;

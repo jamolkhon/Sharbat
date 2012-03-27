@@ -78,7 +78,7 @@ class DefaultDependenciesProvider implements DependenciesProvider {
 
     /** @var \Sharbat\Provider[] $providerAnnotations */
     $providerAnnotations = $parameter->getDeclaringMethod()->getAnnotations(
-    Annotations::PROVIDER);
+      Annotations::PROVIDER);
 
     foreach ($providerAnnotations as $annotation) {
       if ($annotation->getParameterName() == $parameter->getName()) {

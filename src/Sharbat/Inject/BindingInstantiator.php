@@ -2,40 +2,54 @@
 
 namespace Sharbat\Inject;
 
+use Sharbat\Inject\Binder\BindingVisitor;
 use Sharbat\Inject\Binder\Binding;
-use Sharbat\Inject\Binder\ScopedBinding;
+use Sharbat\Inject\Binder\LinkedBinding;
+use Sharbat\Inject\Binder\ConstantBinding;
+use Sharbat\Inject\Binder\UntargettedBinding;
+use Sharbat\Inject\Binder\InstanceBinding;
+use Sharbat\Inject\Binder\ProviderBinding;
+use Sharbat\Inject\Binder\ProviderInstanceBinding;
 
 /**
  * \Sharbat\@Singleton
  */
-class BindingInstantiator {
-  private $defaultScope;
+class BindingInstantiator implements Scope, BindingVisitor {
   private $injector;
 
-  public function __construct(DefaultScope $defaultScope, Injector $injector) {
-    $this->defaultScope = $defaultScope;
+  public function __construct(Injector $injector) {
     $this->injector = $injector;
   }
 
   public function getInstance(Binding $binding) {
-    if ($binding instanceof ScopedBinding) {
-      /** @var \Sharbat\Inject\Binder\ScopedBinding $binding */
-      return $this->getScopeInstance($binding)->getInstance($binding);
-    }
-
-    return $this->defaultScope->getInstance($binding);
+    return $binding->accept($this);
   }
 
-  /**
-   * @param \Sharbat\Inject\Binder\ScopedBinding $binding
-   * @return \Sharbat\Inject\Scope
-   */
-  private function getScopeInstance(ScopedBinding $binding) {
-    if ($binding->getScope() != null) {
-      $scopeClass = $binding->getScope();
-      return $this->injector->getInstance($scopeClass->getQualifiedName());
-    }
+  public function visitLinkedBinding(LinkedBinding $binding) {
+    return $this->injector->getInstance($binding->getTarget()->getQualifiedName());
+  }
 
-    return $this->defaultScope;
+  public function visitUntargettedBinding(UntargettedBinding $binding) {
+    return $this->injector->createInstance(
+      $binding->getSource()->getQualifiedName());
+  }
+
+  public function visitInstanceBinding(InstanceBinding $binding) {
+    return $binding->getInstance();
+  }
+
+  public function visitProviderBinding(ProviderBinding $binding) {
+    $providerClass = $binding->getProvider();
+    /** @var Provider $provider */
+    $provider = $this->injector->getInstance($providerClass->getQualifiedName());
+    return $provider->get();
+  }
+
+  public function visitProviderInstanceBinding(ProviderInstanceBinding $binding) {
+    return $binding->getProviderInstance()->get();
+  }
+
+  public function visitConstantBinding(ConstantBinding $binding) {
+    return $binding->getValue();
   }
 }

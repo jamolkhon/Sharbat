@@ -6,6 +6,11 @@ use Sharbat\Inject\Annotatable;
 use \ReflectionProperty;
 
 class Field implements Annotatable {
+  const ALL = 1793;
+  const IS_STATIC = 1;
+  const IS_PUBLIC = 256;
+  const IS_PROTECTED = 512;
+  const IS_PRIVATE = 1024;
   /**
    * @var \ReflectionProperty
    */
@@ -33,6 +38,33 @@ class Field implements Annotatable {
    */
   public function getInternalReflection() {
     return $this->reflection;
+  }
+
+  public function getDefinition() {
+    $declaration = '';
+
+    if ($this->reflection->isPublic()) {
+      $declaration .= 'public';
+    } else if ($this->reflection->isProtected()) {
+      $declaration .= 'protected';
+    } else if ($this->reflection->isPrivate()) {
+      $declaration .= 'private';
+    }
+
+    if ($this->reflection->isStatic()) {
+      $declaration .= ' static';
+    }
+
+    $declaration .= ' $' . $this->reflection->getName();
+    return $declaration;
+  }
+
+  /**
+   * @param string $qualifiedClassName
+   * @return bool
+   */
+  public function hasAnnotation($qualifiedClassName) {
+    return $this->getFirstAnnotation($qualifiedClassName) != null;
   }
 
   /**
@@ -92,6 +124,10 @@ class Field implements Annotatable {
   }
 
   public function getValue($instance) {
+    if (!$this->reflection->isPublic()) {
+      $this->reflection->setAccessible(true);
+    }
+
     return $this->reflection->getValue($instance);
   }
 

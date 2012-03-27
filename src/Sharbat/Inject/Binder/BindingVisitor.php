@@ -5,6 +5,8 @@ namespace Sharbat\Inject\Binder;
 interface BindingVisitor {
   function visitLinkedBinding(LinkedBinding $binding);
 
+  function visitUntargettedBinding(UntargettedBinding $binding);
+
   function visitInstanceBinding(InstanceBinding $binding);
 
   function visitProviderBinding(ProviderBinding $binding);

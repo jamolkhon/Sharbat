@@ -24,7 +24,7 @@ class LinkedBindingBuilder implements ScopedBindingBuilder {
 
   public function bind($qualifiedClassName) {
     $class = $this->reflectionService->getClass($qualifiedClassName);
-    $this->binding = new LinkedBinding($class);
+    $this->binding = new UntargettedBinding($class);
     $this->bindings->addBinding($this->binding);
 
     /** @var \Sharbat\Scope $scopeAnnotation */

@@ -13,11 +13,17 @@ class BindingValidator implements BindingVisitor {
 
   public function validate(Binding $binding) {
     $binding->accept($this);
+
+    if ($binding instanceof ScopedBinding) {
+      /** @var ScopedBinding $binding */
+      $this->validateScope($binding->getScope());
+    }
   }
 
   private function validateScope(Clazz $scope = null) {
     if ($scope != null && !$scope->implementsInterface('\Sharbat\Inject\Scope')) {
-      throw new InvalidBindingException($scope->getQualifiedName() . ' is not a scope');
+      throw new InvalidBindingException(
+        $scope->getQualifiedName() . ' is not a scope');
     }
   }
 
@@ -25,24 +31,25 @@ class BindingValidator implements BindingVisitor {
     $source = $binding->getSource();
     $target = $binding->getTarget();
 
-    if ($target != null) {
-      $valid = false;
+    $valid = false;
 
-      if ($source->isInterface()) {
-        /* if target is also an interface and extends source interface
-           then both implementsInterface and isSubclassOf methods return true */
-        $valid = $target->implementsInterface($source->getQualifiedName());
-      } else if (!$target->isInterface()) {
-        $valid = $target->isSubclassOf($source->getQualifiedName());
-      }
-
-      if (!$valid) {
-        throw new InvalidBindingException($target->getQualifiedName() .
-            ' must implement/extend ' . $source->getQualifiedName());
-      }
+    if ($source->isInterface()) {
+      $valid = $target->implementsInterface($source->getQualifiedName());
+    } else if (!$target->isInterface()) {
+      $valid = $target->isSubclassOf($source->getQualifiedName());
     }
 
-    $this->validateScope($binding->getScope());
+    if (!$valid) {
+      throw new InvalidBindingException($target->getQualifiedName() .
+          ' must implement/extend ' . $source->getQualifiedName());
+    }
+  }
+
+  public function visitUntargettedBinding(UntargettedBinding $binding) {
+    if (!$binding->getSource()->isInstantiable()) {
+      throw new InvalidBindingException(
+        $binding->getSource()->getQualifiedName() . ' cannot be instantiated');
+    }
   }
 
   public function visitInstanceBinding(InstanceBinding $binding) {
@@ -58,8 +65,6 @@ class BindingValidator implements BindingVisitor {
       throw new InvalidBindingException(get_class($instance) .
           ' must be an instance of ' . $source->getQualifiedName());
     }
-
-    $this->validateScope($binding->getScope());
   }
 
   public function visitProviderBinding(ProviderBinding $binding) {
@@ -67,12 +72,9 @@ class BindingValidator implements BindingVisitor {
       throw new InvalidBindingException($binding->getProvider()->getQualifiedName() .
           ' is not a provider');
     }
-
-    $this->validateScope($binding->getScope());
   }
 
   public function visitProviderInstanceBinding(ProviderInstanceBinding $binding) {
-    $this->validateScope($binding->getScope());
   }
 
   public function visitConstantBinding(ConstantBinding $binding) {

@@ -3,34 +3,39 @@
 namespace Sharbat\Inject;
 
 use Sharbat\Reflect\ReflectionService;
+use Sharbat\Intercept\InterceptorProxyBuilder;
 use \RuntimeException;
 use Sharbat\Reflect\Clazz;
 
 class DefaultInjector implements Injector, MembersInjector {
   private $bindings;
-  private $bindingInstantiator;
+  private $scopedBindingInstantiator;
   private $reflectionService;
   private $dependenciesProvider;
   private $injectorProvider;
+  private $interceptorProxyBuilder;
 
   private $dependencies = array();
   private $incompleteInstances = array();
 
   public function __construct(Bindings $bindings,
-      BindingInstantiator $bindingInstantiator,
+      ScopedBindingInstantiator $scopedBindingInstantiator,
       ReflectionService $reflectionService,
       DependenciesProvider $dependenciesProvider,
-      InjectorProvider $injectorProvider) {
+      InjectorProvider $injectorProvider,
+      InterceptorProxyBuilder $interceptorProxyBuilder) {
     $this->bindings = $bindings;
-    $this->bindingInstantiator = $bindingInstantiator;
+    $this->scopedBindingInstantiator = $scopedBindingInstantiator;
     $this->reflectionService = $reflectionService;
     $this->dependenciesProvider = $dependenciesProvider;
     $this->injectorProvider = $injectorProvider;
+    $this->interceptorProxyBuilder = $interceptorProxyBuilder;
   }
 
   public function getInstance($qualifiedClassName) {
-    $binding = $this->bindings->getOrCreateBinding($qualifiedClassName);
-    return $this->bindingInstantiator->getInstance($binding);
+    $class = $this->reflectionService->getClass($qualifiedClassName);
+    $binding = $this->bindings->getOrCreateBinding($class);
+    return $this->scopedBindingInstantiator->getInstance($binding);
   }
 
   public function getProviderFor($qualifiedClassName) {
@@ -53,6 +58,8 @@ class DefaultInjector implements Injector, MembersInjector {
 
     if (isset($this->dependencies[$qualifiedClassName])) {
       $incompleteInstance = $class->newInstanceWithoutConstructor();
+      $incompleteInstance = $this->interceptorProxyBuilder->createProxyOrReturn(
+        $incompleteInstance);
       $this->incompleteInstances[$qualifiedClassName][] = $incompleteInstance;
       return $incompleteInstance;
     }
@@ -77,7 +84,7 @@ class DefaultInjector implements Injector, MembersInjector {
 
     unset($this->dependencies[$qualifiedClassName]);
     unset($this->incompleteInstances[$qualifiedClassName]);
-    return $instance;
+    return $this->interceptorProxyBuilder->createProxyOrReturn($instance);
   }
 
   public function injectTo($instance) {

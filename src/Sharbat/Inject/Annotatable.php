@@ -5,6 +5,12 @@ namespace Sharbat\Inject;
 interface Annotatable {
   /**
    * @param string $qualifiedClassName
+   * @return bool
+   */
+  function hasAnnotation($qualifiedClassName);
+
+  /**
+   * @param string $qualifiedClassName
    * @return \Sharbat\Inject\Annotation
    */
   function getFirstAnnotation($qualifiedClassName);

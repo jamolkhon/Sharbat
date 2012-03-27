@@ -7,11 +7,12 @@ use Sharbat\Reflect\ObjectUtils;
 use Sharbat\Reflect\ReflectionService;
 use Sharbat\Inject\GenericProvider;
 use Sharbat\Inject\DefaultDependenciesProvider;
-use Sharbat\Inject\InjectorProvider;
 use Sharbat\Inject\ProvidesProvider;
 use Sharbat\Inject\DefaultBinder;
-use Sharbat\Inject\DefaultScope;
+use Sharbat\Intercept\InterceptorProxyBuilder;
 use Sharbat\Inject\BindingInstantiator;
+use Sharbat\Inject\ScopedBindingInstantiator;
+use Sharbat\Inject\InjectorProvider;
 use Sharbat\Inject\Singleton;
 use Sharbat\Inject\AbstractModule;
 use \RuntimeException;
@@ -34,14 +35,17 @@ final class Sharbat {
     $genericProvider = new GenericProvider($injector);
     $dependenciesProvider = new DefaultDependenciesProvider($reflectionService,
       $injector, $genericProvider);
-    $injectorProvider = new InjectorProvider($dependenciesProvider);
     $providesProvider = new ProvidesProvider($dependenciesProvider);
     $binder = new DefaultBinder($reflectionService, $injector, $providesProvider);
-    $defaultScope = new DefaultScope($injector);
-    $bindingInstantiator = new BindingInstantiator($defaultScope, $injector);
+    $bindingInstantiator = new BindingInstantiator($injector);
+    $scopedBindingInstantiator = new ScopedBindingInstantiator($injector,
+      $bindingInstantiator);
+    $injectorProvider = new InjectorProvider($dependenciesProvider);
+    $interceptorProxyBuilder = new InterceptorProxyBuilder($reflectionService,
+      $binder);
     $injectorClass->invokeConstructorIfExists($injector, array($binder,
-      $bindingInstantiator, $reflectionService, $dependenciesProvider,
-      $injectorProvider));
+      $scopedBindingInstantiator, $reflectionService, $dependenciesProvider,
+      $injectorProvider, $interceptorProxyBuilder));
 
     $binder->bind('\Sharbat\Inject\DependenciesProvider')->to(
       '\Sharbat\Inject\DefaultDependenciesProvider')->inSingleton();
@@ -52,10 +56,10 @@ final class Sharbat {
     $binder->bind('\Sharbat\Inject\Injector')->toInstance($injector);
     $binder->bind('\Sharbat\Inject\MembersInjector')->toInstance($injector);
     $binder->bind('\Sharbat\Inject\Singleton')->toInstance(new Singleton(
-      $defaultScope));
+      $bindingInstantiator));
 
     foreach (func_get_args() as $module) {
-      if (is_object($module) && $module instanceof AbstractModule) {
+      if ($module instanceof AbstractModule) {
         $binder->install($module);
       } else {
         throw new RuntimeException('Received non-module argument');

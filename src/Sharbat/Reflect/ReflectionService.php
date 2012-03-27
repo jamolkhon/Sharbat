@@ -21,7 +21,6 @@ class ReflectionService implements Serializable {
    * @var \ReflectionClass[]
    */
   private $reflections = array();
-
   private $annotations = array();
 
   public function __construct(AnnotationParser $annotationParser,
@@ -44,7 +43,7 @@ class ReflectionService implements Serializable {
   }
 
   /**
-   * @param string
+   * @param string $qualifiedClassName
    * @return \Sharbat\Reflect\Clazz
    */
   public function getClass($qualifiedClassName) {
@@ -78,16 +77,24 @@ class ReflectionService implements Serializable {
     $fields = array();
 
     foreach ($reflection->getProperties() as $property) {
-      $propertyName = $property->getName();
-      $fields[$propertyName] = $this->createField($property, $class);
+      $fieldName = $property->getName();
+      $fields[$fieldName] = $this->createField($property, $class);
     }
 
     $this->setField($class, 'fields', $fields);
     $methods = array();
 
-    foreach ($reflection->getMethods() as $method) {
-      /** @var \ReflectionMethod $method */
-      $methods[$method->getName()] = $this->createMethod($method, $class);
+    foreach ($reflection->getMethods() as $reflectionMethod) {
+      /** @var \ReflectionMethod $reflectionMethod */
+      $method = $this->createMethod($reflectionMethod, $class);
+      $methods[$reflectionMethod->getShortName()] = $method;
+      $parameters = array();
+
+      foreach ($reflectionMethod->getParameters() as $parameter) {
+        $parameters[] = new Parameter($parameter, $method);
+      }
+
+      $this->setField($method, 'parameters', $parameters);
     }
 
     $this->setField($class, 'methods', $methods);
@@ -141,11 +148,10 @@ class ReflectionService implements Serializable {
 
     /** @var \ReflectionMethod $constructor */
     $constructor = $reflection->getConstructor();
-
     $numberOfArguments = count($arguments);
     $numberOfStringKeys = count(array_filter(array_keys($arguments), 'is_string'));
 
-    if ($numberOfStringKeys === 0) {
+    if ($numberOfStringKeys === 0 && $constructor != null) {
       if ($numberOfArguments < $constructor->getNumberOfRequiredParameters()) {
         throw new RuntimeException('Not enough arguments to create annotation ' .
             $qualifiedClassName);
@@ -159,6 +165,18 @@ class ReflectionService implements Serializable {
 
     throw new RuntimeException(
       'Cannot determine annotation building method: constructor or setter');
+  }
+
+  public function castObject($object, $targetClassName) {
+    $class = $this->getClass(get_class($object));
+    $targetClass = $this->getClass($targetClassName);
+    $targetObject = $targetClass->newInstanceWithoutConstructor();
+
+    foreach ($class->getFields() as $field) {
+      $field->setValue($targetObject, $field->getValue($object));
+    }
+
+    return $targetObject;
   }
 
   public function serialize() {

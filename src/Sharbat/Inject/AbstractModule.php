@@ -2,6 +2,8 @@
 
 namespace Sharbat\Inject;
 
+use Sharbat\Inject\Binder\Matcher;
+use Sharbat\Intercept\Interceptor;
 use \RuntimeException;
 
 abstract class AbstractModule implements Binder {
@@ -30,6 +32,11 @@ abstract class AbstractModule implements Binder {
    */
   public function bindConstant($constant) {
     return $this->binder->bindConstant($constant);
+  }
+
+  public function bindInterceptor(Matcher $classMatcher, Matcher $methodMatcher,
+      Interceptor $interceptor) {
+    call_user_func_array(array($this->binder, __FUNCTION__), func_get_args());
   }
 
   public function install(AbstractModule $module) {
