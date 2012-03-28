@@ -29,27 +29,27 @@ class Parameter {
   }
 
   public function getDefinition() {
-    $declaration = '';
+    $definition = '';
     $class = $this->reflection->getClass();
 
     if ($class != null) {
-      $declaration .= $class->getName();
+      $definition .= $class->getName();
     } else if ($this->reflection->isArray()) {
-      $declaration .= 'array';
+      $definition .= 'array';
     }
 
     if ($this->reflection->isPassedByReference()) {
-      $declaration .= ' &$' . $this->reflection->getName();
+      $definition .= ' &$' . $this->reflection->getName();
     } else {
-      $declaration .= ' $' . $this->reflection->getName();
+      $definition .= ' $' . $this->reflection->getName();
     }
 
     if ($this->reflection->isDefaultValueAvailable()) {
       $defaultValue = $this->reflection->getDefaultValue();
-      $declaration .= ' = ' . var_export($defaultValue, true);
+      $definition .= ' = ' . var_export($defaultValue, true);
     }
 
-    return trim($declaration);
+    return trim($definition);
   }
 
   /**

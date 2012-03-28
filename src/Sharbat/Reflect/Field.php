@@ -41,22 +41,22 @@ class Field implements Annotatable {
   }
 
   public function getDefinition() {
-    $declaration = '';
+    $definition = '';
 
     if ($this->reflection->isPublic()) {
-      $declaration .= 'public';
+      $definition .= 'public';
     } else if ($this->reflection->isProtected()) {
-      $declaration .= 'protected';
+      $definition .= 'protected';
     } else if ($this->reflection->isPrivate()) {
-      $declaration .= 'private';
+      $definition .= 'private';
     }
 
     if ($this->reflection->isStatic()) {
-      $declaration .= ' static';
+      $definition .= ' static';
     }
 
-    $declaration .= ' $' . $this->reflection->getName();
-    return $declaration;
+    $definition .= ' $' . $this->reflection->getName();
+    return $definition;
   }
 
   /**

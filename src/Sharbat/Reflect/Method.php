@@ -53,30 +53,30 @@ class Method implements Annotatable {
   }
 
   public function getHeaderDefinition() {
-    $headerDeclaration = '';
+    $headerDefinition = '';
 
     if ($this->reflection->isPublic()) {
-      $headerDeclaration .= 'public';
+      $headerDefinition .= 'public';
     } else if ($this->reflection->isProtected()) {
-      $headerDeclaration .= 'protected';
+      $headerDefinition .= 'protected';
     } else if ($this->reflection->isPrivate()) {
-      $headerDeclaration .= 'private';
+      $headerDefinition .= 'private';
     }
 
     if ($this->reflection->isStatic()) {
-      $headerDeclaration .= ' static';
+      $headerDefinition .= ' static';
     }
 
-    $headerDeclaration .= ' function';
+    $headerDefinition .= ' function';
 
     if ($this->reflection->returnsReference()) {
-      $headerDeclaration .= ' &' . $this->reflection->getShortName();
+      $headerDefinition .= ' &' . $this->reflection->getShortName();
     } else {
-      $headerDeclaration .= ' ' . $this->reflection->getShortName();
+      $headerDefinition .= ' ' . $this->reflection->getShortName();
     }
 
-    $headerDeclaration .= $this->getParameterListDefinition(true);
-    return $headerDeclaration;
+    $headerDefinition .= $this->getParameterListDefinition(true);
+    return $headerDefinition;
   }
 
   public function getParameterListDefinition($withParentheses = false) {
