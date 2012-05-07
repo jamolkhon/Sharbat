@@ -177,7 +177,8 @@ class DefaultBinder implements Binder, Bindings {
    * @return \Sharbat\Inject\Binder\ConstantBinding
    */
   public function getConstantBinding($constant) {
-    return isset($this->bindings[$constant]) ? $this->bindings[$constant] : null;
+    $key = ConstantBinding::generateKey($constant);
+    return isset($this->bindings[$key]) ? $this->bindings[$key] : null;
   }
 
   /**
